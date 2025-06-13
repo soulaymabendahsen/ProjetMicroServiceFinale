@@ -1,0 +1,326 @@
+/* Variables basées sur la charte graphique */
+:root {
+  --primary-color: #F86D72;
+  --black-color: #272727;
+  --white-color: #fff;
+  --gray-color: #F3F3F3;
+  --gray-color-200: #E3E3E3;
+  --gray-color-300: #E0E0E0;
+  --accent-color: #717171;
+  --light-color: #F8F8F8;
+  --transition-speed: 0.3s;
+  --box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.08);
+  --border-radius: 8px;
+  --card-border-radius: 12px;
+  --btn-border-radius: 200px;
+}
+
+/* Styles pour la section des réclamations */
+.padding-large {
+  padding: 3rem 0;
+}
+
+.section-title h3 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--black-color);
+  margin-bottom: 0;
+}
+
+/* Navigation pills */
+.nav-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.nav-pills .nav-link {
+  color: var(--black-color);
+  background-color: var(--gray-color);
+  border: none;
+  border-radius: var(--btn-border-radius);
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  transition: all var(--transition-speed) ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.nav-pills .nav-link:hover {
+  background-color: var(--gray-color-300);
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow);
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+}
+
+.nav-pills .nav-link i {
+  margin-right: 0.5rem;
+}
+
+/* Filtres supplémentaires */
+.filters-container {
+  background-color: var(--light-color);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.form-select {
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--gray-color-300);
+  background-color: var(--white-color);
+  color: var(--black-color);
+  font-size: 0.9rem;
+  transition: all var(--transition-speed) ease;
+}
+
+.form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(248, 109, 114, 0.25);
+  outline: none;
+}
+
+/* Barre de recherche */
+.search-container {
+  position: relative;
+  margin-bottom: 2rem;
+  margin-top: 1.5rem;
+}
+
+.search-container input {
+  border-radius: var(--btn-border-radius);
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--gray-color-300);
+  width: 100%;
+  font-size: 1rem;
+  transition: all var(--transition-speed) ease;
+}
+
+.search-container input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(248, 109, 114, 0.2);
+}
+
+.search-container button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--accent-color);
+  cursor: pointer;
+}
+
+/* Tableau des réclamations */
+.complaint-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: var(--white-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+  margin-bottom: 2rem;
+}
+
+.complaint-table th {
+  background-color: var(--light-color);
+  color: var(--black-color);
+  font-weight: 600;
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 2px solid var(--gray-color-300);
+}
+
+.complaint-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray-color-200);
+  vertical-align: middle;
+}
+
+.complaint-table tbody tr:hover {
+  background-color: var(--light-color);
+}
+
+.complaint-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Badges pour les statuts et priorités */
+.badge {
+  padding: 0.5rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.status-pending {
+  background-color: #FFF9C4;
+  color: #F57F17;
+}
+
+.status-in-progress {
+  background-color: #BBDEFB;
+  color: #1565C0;
+}
+
+.status-resolved {
+  background-color: #C8E6C9;
+  color: #2E7D32;
+}
+
+.status-rejected {
+  background-color: #FFCDD2;
+  color: #C62828;
+}
+
+.priority-low {
+  background-color: #E0F7FA;
+  color: #006064;
+}
+
+.priority-medium {
+  background-color: #E1F5FE;
+  color: #01579B;
+}
+
+.priority-high {
+  background-color: #FFF3E0;
+  color: #E65100;
+}
+
+.priority-urgent {
+  background-color: #FFEBEE;
+  color: #B71C1C;
+}
+
+/* Boutons d'action */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: var(--border-radius);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--white-color);
+}
+
+.btn-primary:hover {
+  background-color: #e55a5f;
+  border-color: #e55a5f;
+}
+
+.btn-warning {
+  background-color: #FFA000;
+  border-color: #FFA000;
+  color: var(--white-color);
+}
+
+.btn-warning:hover {
+  background-color: #FF8F00;
+  border-color: #FF8F00;
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.page-item {
+  margin: 0;
+}
+
+.page-link {
+  padding: 0.5rem 0.75rem;
+  color: var(--primary-color);
+  background-color: var(--white-color);
+  border: 1px solid var(--gray-color-300);
+  text-decoration: none;
+  transition: all var(--transition-speed) ease;
+}
+
+.page-item.active .page-link {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  border-color: var(--primary-color);
+}
+
+.page-item.disabled .page-link {
+  color: var(--gray-color-300);
+  pointer-events: none;
+  background-color: var(--white-color);
+}
+
+.page-link:hover {
+  background-color: var(--light-color);
+  color: var(--primary-color);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .nav-pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .nav-pills .nav-link {
+    white-space: nowrap;
+    padding: 0.5rem 1rem;
+  }
+
+  .filters-container .row > div {
+    margin-bottom: 1rem;
+  }
+
+  .complaint-table {
+    font-size: 0.9rem;
+  }
+
+  .complaint-table th,
+  .complaint-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .badge {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+}

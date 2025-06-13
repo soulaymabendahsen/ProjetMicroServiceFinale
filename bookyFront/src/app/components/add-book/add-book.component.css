@@ -1,0 +1,96 @@
+.add-book-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.add-book-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 30px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.button-group button {
+    flex: 1;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.button-group button:first-child {
+    background-color: #007bff;
+    color: white;
+    margin-right: 10px;
+}
+
+.button-group button:first-child:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.button-group button:last-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+.button-group button:hover:not(:disabled) {
+    opacity: 0.8;
+}
+
+.image-preview {
+    display: block;
+    margin-top: 10px;
+  }
+  
+  .image-preview img {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+  }

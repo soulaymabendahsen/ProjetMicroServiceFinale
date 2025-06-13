@@ -1,0 +1,173 @@
+<section id="reclamations" class="position-relative padding-large">
+  <div class="container">
+    <!-- En-tête avec titre et bouton d'ajout -->
+    <div class="section-title d-md-flex justify-content-between align-items-center mb-4">
+      <h3 class="d-flex align-items-center">Gestion des Réclamations</h3>
+    </div>
+
+    <!-- Navigation des catégories -->
+    <div class="mb-4">
+      <nav class="nav-pills">
+        <a class="nav-link"
+           [class.active]="statusFilter === ''"
+           (click)="statusFilter = ''; applyFilters()"
+           href="javascript:void(0)">
+           <i class="fas fa-list"></i> Toutes les réclamations
+        </a>
+        <a class="nav-link"
+           [class.active]="statusFilter === 'PENDING'"
+           (click)="statusFilter = 'PENDING'; applyFilters()"
+           href="javascript:void(0)">
+           <i class="fas fa-clock"></i> En attente
+        </a>
+        <a class="nav-link"
+           [class.active]="statusFilter === 'IN_PROGRESS'"
+           (click)="statusFilter = 'IN_PROGRESS'; applyFilters()"
+           href="javascript:void(0)">
+           <i class="fas fa-spinner"></i> En cours
+        </a>
+        <a class="nav-link"
+           [class.active]="statusFilter === 'RESOLVED'"
+           (click)="statusFilter = 'RESOLVED'; applyFilters()"
+           href="javascript:void(0)">
+           <i class="fas fa-check"></i> Résolues
+        </a>
+        <a class="nav-link"
+           [class.active]="statusFilter === 'REJECTED'"
+           (click)="statusFilter = 'REJECTED'; applyFilters()"
+           href="javascript:void(0)">
+           <i class="fas fa-times"></i> Rejetées
+        </a>
+      </nav>
+    </div>
+
+    <!-- Filtres supplémentaires -->
+    <div class="filters-container mb-4">
+      <div class="row">
+        <div class="col-md-4">
+          <select class="form-select" [(ngModel)]="categoryFilter" (change)="applyFilters()">
+            <option value="">Toutes les catégories</option>
+            <option *ngFor="let category of categories" [value]="category">
+              {{ category | titlecase }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <select class="form-select" [(ngModel)]="priorityFilter" (change)="applyFilters()">
+            <option value="">Toutes les priorités</option>
+            <option *ngFor="let priority of priorities" [value]="priority">
+              {{ priority | titlecase }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <button class="btn btn-outline-primary w-100" (click)="resetFilters()">
+            <i class="fas fa-sync-alt"></i> Réinitialiser les filtres
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="search-container">
+      <input type="text"
+             [(ngModel)]="searchTerm"
+             (input)="applySearchFilter()"
+             placeholder="Rechercher une réclamation...">
+      <button type="button">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+
+    <!-- Indicateur de chargement -->
+    <div *ngIf="loading" class="text-center py-4">
+      <div class="spinner-border" style="color: var(--primary-color);" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="error" class="alert alert-danger">
+      <i class="fas fa-exclamation-circle me-2"></i> {{ error }}
+    </div>
+
+    <!-- Message si aucune réclamation n'est disponible -->
+    <div *ngIf="!loading && !error && filteredComplaints.length === 0" class="text-center py-4">
+      <p>Aucune réclamation disponible pour le moment.</p>
+    </div>
+
+    <!-- Tableau des réclamations -->
+    <div *ngIf="!loading && !error && filteredComplaints.length > 0" class="table-responsive">
+      <table class="table table-hover complaint-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Sujet</th>
+            <th>Client</th>
+            <th>Catégorie</th>
+            <th>Priorité</th>
+            <th>Statut</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let complaint of filteredComplaints">
+            <td>{{ complaint._id?.substring(0, 8) }}...</td>
+            <td>{{ complaint.subject }}</td>
+            <td>{{ complaint.userName }}</td>
+            <td>{{ complaint.category }}</td>
+            <td>
+              <span [ngClass]="getPriorityClass(complaint.priority)" class="badge">
+                {{ complaint.priority }}
+              </span>
+            </td>
+            <td>
+              <span [ngClass]="getStatusClass(complaint.status)" class="badge">
+                {{ complaint.status }}
+              </span>
+            </td>
+            <td>{{ formatDate(complaint.createdAt) }}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-sm btn-primary" (click)="viewDetails(complaint._id!)">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-warning" [routerLink]="['/update-reclamation', complaint._id]">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1" class="d-flex justify-content-center mt-4">
+      <nav aria-label="Pagination des réclamations">
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage - 1)">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+
+          <ng-container *ngFor="let page of [].constructor(totalPages); let i = index">
+            <li class="page-item" [class.active]="currentPage === i + 1">
+              <a class="page-link" href="javascript:void(0)" (click)="changePage(i + 1)">
+                {{ i + 1 }}
+              </a>
+            </li>
+          </ng-container>
+
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" href="javascript:void(0)" (click)="changePage(currentPage + 1)">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</section>

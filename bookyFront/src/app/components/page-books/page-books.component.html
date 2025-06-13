@@ -1,0 +1,183 @@
+<section id="best-selling-items" class="position-relative padding-large">
+  <div class="container">
+    <!-- En-tête avec titre et bouton de tri -->
+    <div class="section-title d-md-flex justify-content-between align-items-center mb-4">
+      <h3 class="d-flex align-items-center">{{getFilterTitle()}}</h3>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" (click)="toggleSort()">
+          {{ sortAscending ? 'Trier ↓' : 'Trier ↑' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation des catégories -->
+    <div class="mb-4">
+      <nav class="nav-pills">
+        <a class="nav-link"
+           [class.active]="selectedLanguage === 'all'"
+           (click)="filterByLanguage('all')"
+           href="javascript:void(0)">
+           <i class="fas fa-book"></i> Tous les livres
+        </a>
+        <a class="nav-link"
+           [class.active]="selectedLanguage === 'français'"
+           (click)="filterByLanguage('français')"
+           href="javascript:void(0)">
+           <i class="fas fa-flag"></i> Livres Français
+        </a>
+        <a class="nav-link"
+           [class.active]="selectedLanguage === 'arabe'"
+           (click)="filterByLanguage('arabe')"
+           href="javascript:void(0)">
+           <i class="fas fa-flag"></i> Livres Arabes
+        </a>
+        <a class="nav-link"
+           [class.active]="selectedLanguage === 'anglais'"
+           (click)="filterByLanguage('anglais')"
+           href="javascript:void(0)">
+           <i class="fas fa-flag"></i> Livres Anglais
+        </a>
+        <a class="nav-link promotion-link"
+           [class.active]="showPromotionsOnly"
+           (click)="togglePromotions()"
+           href="javascript:void(0)">
+           <i class="fas fa-tags"></i> Promotions
+        </a>
+      </nav>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="search-container">
+      <input type="text"
+             [(ngModel)]="searchTerm"
+             (input)="applyFilter()"
+             placeholder="Rechercher un livre par titre, auteur ou genre..."
+             aria-label="Rechercher un livre">
+      <button type="button" aria-label="Rechercher">
+        <i class="fas fa-search"></i>
+      </button>
+      <div class="search-hint" *ngIf="!searchTerm">
+        <i class="fas fa-info-circle me-2"></i>
+        Essayez de rechercher par titre, auteur ou genre
+      </div>
+    </div>
+
+    <!-- Indicateur de chargement -->
+    <div *ngIf="loading" class="text-center py-4">
+      <div class="spinner-border" style="color: var(--primary-color);" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+
+    <!-- Message si aucun livre n'est disponible -->
+    <div *ngIf="!loading && filteredBooks.length === 0" class="no-books-message">
+      <div class="no-books-icon">
+        <i class="fas fa-book-open"></i>
+      </div>
+      <h4>Aucun livre disponible</h4>
+      <p>Nous n'avons pas trouvé de livres correspondant à vos critères de recherche.</p>
+      <button class="btn btn-outline-primary mt-3" (click)="resetFilters()">
+        <i class="fas fa-sync-alt me-2"></i> Réinitialiser les filtres
+      </button>
+    </div>
+
+    <!-- Grille des livres -->
+    <div *ngIf="!loading && filteredBooks.length > 0" class="book-grid">
+      <div class="book-card" *ngFor="let book of filteredBooks">
+        <!-- Badge promotion -->
+        <div class="promotion-badge" *ngIf="book.onSale">
+          -{{book.promotionPercent}}%
+        </div>
+
+        <!-- Image du livre -->
+        <div class="book-image-container">
+          <img [src]="getImageUrl(book.imageUrl)"
+               class="book-image"
+               [alt]="book.title"
+               (error)="onImageError($event)">
+        </div>
+
+        <!-- Contenu du livre -->
+        <div class="book-content">
+          <h3 class="book-title">
+            <a [routerLink]="['/books', book.id]">{{book.title}}</a>
+          </h3>
+          <p class="book-author">{{book.author}} <span class="book-language">{{getLanguageDisplay(book.language)}}</span></p>
+
+          <!-- Prix -->
+          <div class="book-price-container">
+            <span *ngIf="book.onSale" class="book-original-price">{{book.originalPrice | number:'1.2-2'}} TND</span>
+            <span class="book-price">{{book.price | number:'1.2-2'}} TND</span>
+          </div>
+
+          <!-- Actions -->
+          <div class="book-actions">
+            <button type="button"
+                    (click)="addToCart(book)"
+                    [disabled]="isAddingToCart"
+                    title="Ajouter au panier">
+              <svg class="cart">
+                <use xlink:href="#cart"></use>
+              </svg>
+              <span *ngIf="isAddingToCart" class="spinner-border spinner-border-sm ms-1"></span>
+            </button>
+
+            <button type="button"
+                    (click)="addToWishlist(book)"
+                    title="Ajouter aux favoris">
+              <svg class="wishlist">
+                <use xlink:href="#heart"></use>
+              </svg>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/book-details', book.id]"
+                    title="Voir les détails">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="categories" class="padding-large pt-5">
+  <div class="container">
+    <div class="section-title overflow-hidden mb-4">
+      <h3 class="d-flex align-items-center">Catégories populaires</h3>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card mb-4 border-0 rounded-3 position-relative">
+          <a href="javascript:void(0)" (click)="filterByGenre('ROMANCE')">
+            <img src="assets/images/category1.jpg" class="img-fluid rounded-3" alt="Romance">
+            <h6 class="position-absolute bottom-0 bg-primary m-4 py-2 px-3 rounded-3">
+              <span class="text-white">Romance</span>
+            </h6>
+          </a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center mb-4 border-0 rounded-3">
+          <a href="javascript:void(0)" (click)="filterByGenre('FICTION')">
+            <img src="assets/images/category2.jpg" class="img-fluid rounded-3" alt="Fiction">
+            <h6 class="position-absolute bottom-0 bg-primary m-4 py-2 px-3 rounded-3">
+              <span class="text-white">Fiction</span>
+            </h6>
+          </a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center mb-4 border-0 rounded-3">
+          <a href="javascript:void(0)" (click)="filterByGenre('SCIENCE_FICTION')">
+            <img src="assets/images/category3.jpg" class="img-fluid rounded-3" alt="Science Fiction">
+            <h6 class="position-absolute bottom-0 bg-primary m-4 py-2 px-3 rounded-3">
+              <span class="text-white">Science Fiction</span>
+            </h6>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

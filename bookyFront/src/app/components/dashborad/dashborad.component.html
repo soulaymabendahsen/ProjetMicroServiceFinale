@@ -1,0 +1,59 @@
+  <div class="header">
+    <h1>Tableau de Bord</h1>
+  </div>
+
+  <!-- Section des alertes de stock -->
+  <div class="dashboard-alerts">
+    <!-- Alertes de stock bas -->
+    <div class="stock-alerts" *ngIf="getLowStockBooks().length > 0">
+      <div class="alert-header">
+        <i class="fas fa-exclamation-triangle stock-warning-icon"></i>
+        <h3>Alertes de Stock Bas</h3>
+      </div>
+      <div class="alert-content">
+        <div class="stock-alert-item" *ngFor="let book of getLowStockBooks()">
+          <div class="alert-icon">
+            <i class="fas fa-exclamation-circle"></i>
+          </div>
+          <div class="alert-details">
+            <span class="book-title">{{book.title}}</span>
+            <span class="stock-info" [class.stock-critical]="book.quantite <= 2">
+              Reste seulement {{book.quantite}} exemplaire(s)
+            </span>
+          </div>
+          <button class="btn btn-outline-warning btn-sm" [routerLink]="['/update-book', book.id]">
+            Gérer le stock
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section des graphiques en colonne -->
+  <div class="charts-column">
+    <!-- Graphique circulaire - Répartition des livres dans les paniers -->
+    <div class="chart-container">
+      <div class="chart-card">
+        <h3>Répartition des Livres dans les Paniers</h3>
+        <p>Pourcentage des livres les plus ajoutés aux paniers</p>
+        <div class="chart-wrapper">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graphique en barres - Top 5 des ventes -->
+    <div class="chart-container">
+      <div class="chart-card">
+        <h3>Top 5 des Ventes</h3>
+        <p>Les livres les plus vendus</p>
+        <div class="chart-wrapper">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+  

@@ -1,0 +1,119 @@
+<div class="payments-container">
+    <div class="header">
+      <h1>Payments List</h1>
+      <div class="table-controls">
+        <input type="text" class="search-box" placeholder="Rechercher..." 
+               [(ngModel)]="searchTerm" (input)="applyFilter()">
+      </div>
+    </div>
+  
+    <div class="table-container">
+      <table class="dashboard-table">
+        <thead>
+          <tr>
+            <th (click)="sortData('book')" class="sortable">
+              LIVRE
+              <i class="fas fa-sort"></i>
+            </th>
+            <th (click)="sortData('amount')" class="sortable">
+              MONTANT
+              <i class="fas fa-sort"></i>
+            </th>
+            <th (click)="sortData('method')" class="sortable">
+              MÉTHODE
+              <i class="fas fa-sort"></i>
+            </th>
+            <th (click)="sortData('status')" class="sortable">
+              STATUT
+              <i class="fas fa-sort"></i>
+            </th>
+            <th (click)="sortData('date')" class="sortable">
+              DATE
+              <i class="fas fa-sort"></i>
+            </th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr  *ngFor="let payment of paginatedPayments; let i = index" [style.--row-index]="i">
+            <td>
+              <div class="book-info">
+                <div class="book-avatar">
+                  <img *ngIf="payment.bookImageUrl" [src]="getImageUrl(payment.bookImageUrl)" 
+                       alt="Couverture du livre" class="book-image">
+                </div>
+                <div class="book-details">
+                  <span class="book-title">{{payment.bookTitle}}</span>
+                  <span class="customer-email">{{payment.customerEmail}}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="amount-info">
+                <span class="total-amount">{{payment.amount}} TND</span>
+                <span class="price-details">{{payment.quantity}} × {{payment.bookPrice}} TND</span>
+              </div>
+            </td>
+            <td>
+              <span class="payment-method">
+                {{payment.paymentMethod === 'STRIPE' ? 'Carte Bancaire' : payment.paymentMethod}}
+              </span>
+            </td>
+            <td>
+              <span class="status" [ngClass]="{
+                'status-succeeded': payment.paymentStatus === 'SUCCEEDED',
+                'status-pending': payment.paymentStatus === 'PENDING',
+                'status-canceled': payment.paymentStatus === 'CANCELED',
+                'status-failed': payment.paymentStatus === 'FAILED'
+              }">
+                <i class="fas" [ngClass]="{
+                  'fa-check-circle': payment.paymentStatus === 'SUCCEEDED',
+                  'fa-clock': payment.paymentStatus === 'PENDING',
+                  'fa-times-circle': payment.paymentStatus === 'CANCELED',
+                  'fa-exclamation-circle': payment.paymentStatus === 'FAILED'
+                }"></i>
+                {{ payment.paymentStatus === 'SUCCEEDED' ? 'PAYÉ' : 
+                   payment.paymentStatus === 'PENDING' ? 'EN ATTENTE' : 
+                   payment.paymentStatus === 'CANCELED' ? 'ANNULÉ' :
+                   payment.paymentStatus === 'FAILED' ? 'ÉCHOUÉ' :
+                   'INCONNU' }}
+              </span>
+            </td>
+            <td>{{formatDate(payment.paymentDate)}}</td>
+            <td>
+              <div class="actions">
+                <button class="action-btn pdf-btn" title="Télécharger facture" (click)="downloadPaymentPDF(payment.id)">
+                  <i class="fas fa-file-pdf"></i>
+                </button>
+                <button class="action-btn delete-btn" title="Supprimer paiement" (click)="deletePayment(payment.id)">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                <button *ngIf="payment.paymentStatus === 'PENDING'" class="action-btn retry-btn" title="Relancer paiement" (click)="retryPayment(payment.id)">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredPayments.length === 0 && !isLoading">
+            <td colspan="6" class="no-data">Aucun paiement trouvé</td>
+          </tr>
+          <tr *ngIf="isLoading">
+            <td colspan="6" class="loading-row">
+              <div class="spinner-container">
+                <i class="fas fa-spinner fa-spin"></i> Chargement en cours...
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="pagination-controls" *ngIf="filteredPayments.length > itemsPerPage">
+    <button (click)="changePage(-1)" [disabled]="currentPage === 1">
+      &laquo; 
+    </button>
+    <span>Page {{ currentPage }} / {{ totalPages }}</span>
+    <button (click)="changePage(1)" [disabled]="currentPage === totalPages">
+       &raquo;
+    </button>
+  </div>

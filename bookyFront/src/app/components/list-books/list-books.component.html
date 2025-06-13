@@ -1,0 +1,103 @@
+  <!-- Main Content -->
+    <div class="header">
+      <h1>Books List</h1>
+      <button class="btn btn-primary" routerLink="/add-book">+ Ajouter un livre</button>
+    </div>
+
+    <!-- Table Controls -->
+    <div class="table-controls">
+      <input type="text" class="search-box" placeholder="Rechercher..." 
+             [(ngModel)]="searchTerm" (input)="applyFilter()">
+    </div>
+    
+    <button (click)="exportPdf()" class="btn btn-primary">
+      <i class="fas fa-file-pdf"></i> Exporter en PDF
+    </button>
+
+<div class="sort-controls">
+<div class="btn-group" role="group">
+  <button (click)="sortAscending = true; sortBooks()" class="btn btn-danger btn-sm" [class.active]="sortAscending">
+    <i class="fas fa-sort-alpha-down"></i> A → Z
+  </button>
+  <button (click)="sortAscending = false; sortBooks()" class="btn btn-danger btn-sm" [class.active]="!sortAscending">
+    <i class="fas fa-sort-alpha-down-alt"></i> Z → A
+  </button>
+</div>
+</div>
+
+   <!-- Books Table -->
+<table class="dashboard-table">
+<thead>
+  <tr>
+    <th>ID</th>
+    <th>Image</th>
+    <th>Titre</th>
+    <th>Auteur</th>
+    <th>Genre</th>
+    <th>Prix Original</th>
+    <th>Promotion</th>
+    <th>Prix Final</th>
+    <th>Date Publication</th>
+    <th>Quantité</th>
+    <th>Disponibilité</th>
+    <th>Actions</th>
+  </tr>
+</thead>
+<tbody>
+  <tr *ngFor="let book of filteredBooks">
+    <td>{{book.id}}</td>
+    <td>
+      <img *ngIf="book.imageUrl" 
+           [src]="getImageUrl(book.imageUrl)" 
+           [attr.data-original-src]="getImageUrl(book.imageUrl)"
+           (error)="onImageError($event)"
+           alt="Couverture du livre"
+           class="book-image"
+           style="max-width: 100px; max-height: 150px;">
+      <span *ngIf="!book.imageUrl">Pas d'image</span>
+    </td>
+    <td>{{book.title}}</td>
+    <td>{{book.author}}</td>
+    <td>{{book.genre}}</td>
+    <td>{{book.originalPrice || book.price | number:'1.2-2'}} TND</td>
+    <td>
+      <div class="promotion-controls">
+        <input type="number" 
+               [value]="book.promotionPercent || 0" 
+               (change)="updatePromotion(book.id!, $event)"
+               min="0" 
+               max="100" 
+               class="promotion-input"
+               placeholder="%" 
+               style="width: 70px;">
+        <span>%</span>
+      </div>
+    </td>
+    <td>
+      <span [class.on-sale]="book.onSale">{{book.price | number:'1.2-2'}} TND</span>
+      <span *ngIf="book.onSale" class="promotion-badge">-{{book.promotionPercent}}%</span>
+    </td>
+    <td>{{book.publicationDate | date:'dd/MM/yyyy'}}</td>
+    <td>
+      <span [class.low-stock]="book.quantite < 5">
+        <i *ngIf="book.quantite < 5" class="fas fa-exclamation-triangle"></i>
+        {{book.quantite}}
+      </span>
+    </td>
+    <td>
+      <span class="status" [ngClass]="book.available ? 'status-success' : 'status-danger'">
+        {{book.available ? 'Disponible' : 'Indisponible'}}
+      </span>
+    </td>
+    <td>
+      <button class="btn btn-danger btn-sm" [routerLink]="book.id ? ['/update-book', book.id] : []">Modifier</button>
+      <button class="btn btn-danger btn-sm" (click)="book.id && deleteLivre(book.id)">Supprimer</button>
+    </td>
+  </tr>
+  <tr *ngIf="filteredBooks.length === 0">
+    <td colspan="12" class="no-data">Aucun livre trouvé</td>
+  </tr>
+</tbody>
+</table>
+
+

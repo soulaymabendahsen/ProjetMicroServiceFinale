@@ -1,0 +1,102 @@
+<div class="header">
+    <div class="header-content">
+        <h1>Shopping Carts</h1>
+        
+        <!-- Search and Filter Controls -->
+        <div class="controls-container">
+            <!-- Search Input -->
+            <div class="search-box">
+                <input type="text" [(ngModel)]="searchTerm" 
+                       (input)="filterCarts()" 
+                       placeholder="Search by book title or user...">
+                <svg class="search-icon" viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+            </div>
+            
+            <!-- Filter Dropdown -->
+            <div class="filter-dropdown">
+                <select [(ngModel)]="filterCriteria" (change)="filterCarts()">
+                    <option value="all">All Carts</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rest of your template remains the same -->
+
+<!-- Cart Grid -->
+<div class="cart-grid">
+    <!-- Cart Card -->
+    <div class="cart-card" *ngFor="let cart of filteredCarts">
+        <div class="cart-header">
+            <h3>Cart #{{cart.id}}</h3>
+            <span class="cart-date">{{cart.createdAt | date:'mediumDate'}}</span>
+        </div>
+        
+        <div class="cart-content">
+            <!-- Image Display -->
+            <div class="item-image">
+                <img [src]="getImageUrl(cart.imageUrl)" 
+                     [alt]="cart.bookTitle" 
+                     class="product-image"
+                     onerror="this.src='assets/no-image.jpg'">
+            </div>
+            
+            <!-- Item Details -->
+            <div class="cart-body">
+                <div class="cart-item">
+                    <div class="item-info">
+                        <h4>{{cart.bookTitle}}</h4>
+                        <!-- <h6>UserName: {{cart.userName }}</h6> -->
+                                                 <h6>UserName: Noussa</h6>
+
+                        <div class="item-meta">
+                            <span class="price">{{cart.bookPrice}} TND</span>
+                            <span class="quantity">x {{cart.quantity}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer with Total -->
+        <!-- Add this inside your cart-card div -->
+        <div class="cart-footer">
+            <span class="total-amount">Total : {{cart.totalPrice}} TND</span>
+            <div class="qr-button-container">
+            <button class="qr-button" (click)="openQRModal(cart)">
+              <i class="fas fa-qrcode"></i>
+            </button>
+          </div>
+         </div>
+        </div>
+        
+        <!-- Single Modal for QR Code (outside the *ngFor) -->
+        <div class="qr-modal" *ngIf="selectedCartForQR" (click)="closeQRModal()">
+          <div class="qr-modal-content" (click)="$event.stopPropagation()">
+            <button class="close-button" (click)="closeQRModal()">&times;</button>
+            <div class="cart-header">
+                <h3 style="margin-left: 60px; font-size: 20px;">Cart #{{selectedCartForQR.id}}</h3>
+            </div>            
+            <qrcode [qrdata]="generateQRPayload(selectedCartForQR)" 
+                    [width]="250"
+                    [errorCorrectionLevel]="'M'"
+                    [colorDark]="'#000000'"
+                    [colorLight]="'#ffffff'"></qrcode>
+
+<!-- Empty State -->
+<div *ngIf="filteredCarts.length === 0" class="empty-state">
+    <h3>No carts found</h3>
+    <p *ngIf="searchTerm || filterCriteria !== 'all'">No carts match your search/filter criteria</p>
+    <p *ngIf="!searchTerm && filterCriteria === 'all'">There are currently no shopping carts in the system</p>
+</div>
+
+<!-- Status Message -->
+<div *ngIf="message" class="status-message">
+    {{message}}
+</div>

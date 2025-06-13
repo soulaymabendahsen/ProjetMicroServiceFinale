@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  eureka-server:
+    build: ./Eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - booki-network
+
+  book-service:
+    image: sarrahsahli/gestionlivres:latest
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    ports:
+      - "8095:8095"
+    networks:
+      - booki-network
+    depends_on:
+      - eureka-server
+
+  cart-service:
+    build: ./Cart
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    ports:
+      - "8081:8081"
+    networks:
+      - booki-network
+    depends_on:
+      - eureka-server
+      - book-service
+
+  complaint-service:
+    build: ./complaint-service
+    environment:
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongo:27017/complaints
+      - EUREKA_HOST=eureka-server
+      - EUREKA_PORT=8761
+      - APP_NAME=complaint-service
+      - APP_PORT=3000
+    ports:
+      - "3000:3000"
+    networks:
+      - booki-network
+    depends_on:
+      - eureka-server
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo-complaints
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - booki-network
+
+networks:
+  booki-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

@@ -1,0 +1,115 @@
+<app-navbar></app-navbar>
+
+<div class="book-details-container">
+  <div class="container">
+    <!-- Fil d'Ariane -->
+    <div class="breadcrumb">
+      <a routerLink="/">Accueil</a>
+      <span class="separator">/</span>
+      <a routerLink="/books">Livres</a>
+      <span class="separator">/</span>
+      <span class="current">{{book?.title || 'Détails du livre'}}</span>
+    </div>
+
+    <!-- Loading spinner -->
+    <div *ngIf="loading" class="text-center py-5">
+      <div class="spinner-border" style="color: var(--primary-color);" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="error" class="alert alert-danger">
+      <i class="fas fa-exclamation-circle me-2"></i> {{error}}
+    </div>
+
+    <!-- Book details -->
+    <div *ngIf="book && !loading" class="row g-5">
+      <!-- Image à gauche -->
+      <div class="col-lg-5">
+        <div class="book-image-container">
+          <img [src]="getImageUrl(book.imageUrl)"
+               [alt]="book.title"
+               (error)="onImageError($event)"
+               class="book-image">
+          <div class="promotion-badge" *ngIf="book.onSale">
+            -{{book.promotionPercent}}%
+          </div>
+        </div>
+      </div>
+
+      <!-- Détails à droite -->
+      <div class="col-lg-7">
+        <h1 class="book-title">{{book.title}}</h1>
+        <p class="book-author">Par {{book.author}}</p>
+
+        <!-- Métadonnées -->
+        <div class="book-meta">
+          <div class="meta-item">
+            <i class="fas fa-bookmark"></i>
+            <span class="meta-label">Genre:</span>
+            <span class="meta-value">{{book.genre}}</span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span class="meta-label">Publication:</span>
+            <span class="meta-value">{{book.publicationDate | date:'dd/MM/yyyy'}}</span>
+          </div>
+          <div class="meta-item">
+            <i class="fas fa-language"></i>
+            <span class="meta-label">Langue:</span>
+            <span class="meta-value">{{getLanguageDisplay(book.language)}}</span>
+          </div>
+        </div>
+
+        <!-- Prix et disponibilité -->
+        <div class="book-price-container">
+          <div class="d-flex align-items-center">
+            <div *ngIf="book.onSale" class="book-original-price">{{book.originalPrice | number:'1.2-2'}} TND</div>
+            <div class="book-price">{{book.price | number:'1.2-2'}} TND</div>
+            <div *ngIf="book.onSale" class="book-discount ms-2">(-{{book.promotionPercent}}%)</div>
+          </div>
+          <div class="availability">
+            <div class="availability-dot" [ngClass]="book.available ? 'available' : 'unavailable'"></div>
+            <div class="availability-text" [ngClass]="book.available ? 'text-success' : 'text-danger'">
+              {{book.available ? 'Disponible' : 'Non disponible'}}
+              <span *ngIf="book.available">({{book.quantite}} en stock)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Résumé -->
+        <div class="book-summary">
+          <h3 class="section-title">Résumé</h3>
+          <p class="summary-content">
+            {{book.resume || 'Aucun résumé disponible pour ce livre.'}}
+          </p>
+        </div>
+
+        <!-- Évaluation -->
+        <div class="book-rating" *ngIf="book.rating">
+          <h3 class="section-title">Évaluation</h3>
+          <div class="rating-stars">
+            <i class="fas fa-star star" *ngFor="let star of getRatingStars(book.rating)"></i>
+          </div>
+          <p class="rating-text">{{book.rating}}/5 étoiles</p>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="book-actions">
+          <button class="btn btn-primary" (click)="addToCart(book)" [disabled]="!book.available">
+            <i class="fas fa-shopping-cart"></i> Ajouter au panier
+          </button>
+          <button class="btn btn-outline" (click)="addToWishlist(book)">
+            <i class="fas fa-heart"></i> Ajouter aux favoris
+          </button>
+          <a routerLink="/books" class="btn btn-outline">
+            <i class="fas fa-arrow-left"></i> Retour aux livres
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-footer></app-footer>

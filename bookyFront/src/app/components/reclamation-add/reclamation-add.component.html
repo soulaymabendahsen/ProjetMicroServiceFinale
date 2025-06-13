@@ -1,0 +1,188 @@
+<app-navbar></app-navbar>
+<section class="add-complaint-section padding-large">
+  <div class="container">
+    <div class="section-title text-center mb-5">
+      <h2 class="display-5 fw-bold">Service Client - Formulaire de Réclamation</h2>
+      <p class="lead">Un problème avec votre commande ? Un livre endommagé ? Une suggestion d'amélioration ? <br>Utilisez ce formulaire pour nous faire part de votre réclamation et notre équipe vous répondra dans les plus brefs délais.</p>
+    </div>
+
+    <div class="complaint-form-container">
+      <div class="form-intro mb-4">
+        <div class="d-flex align-items-center mb-3">
+          <i class="fas fa-info-circle text-primary me-3 fs-4"></i>
+          <h5 class="mb-0">Comment ça fonctionne ?</h5>
+        </div>
+        <p class="mb-0">Remplissez ce formulaire avec précision. Les champs marqués d'un <span class="text-danger">*</span> sont obligatoires. Après soumission, vous recevrez un numéro de suivi et notre équipe traitera votre demande sous 48h ouvrées.</p>
+      </div>
+      <form [formGroup]="complaintForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <!-- Informations personnelles -->
+          <div class="col-md-6">
+            <div class="form-group mb-3">
+              <label for="userName">Nom complet <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                <input
+                  type="text"
+                  id="userName"
+                  formControlName="userName"
+                  class="form-control"
+                  placeholder="Votre nom complet"
+                  [ngClass]="{ 'is-invalid': submitted && f['userName'].errors }"
+                >
+              </div>
+              <div *ngIf="submitted && f['userName'].errors" class="invalid-feedback">
+                <div *ngIf="f['userName'].errors['required']">Le nom est requis</div>
+                <div *ngIf="f['userName'].errors['minlength']">Le nom doit contenir au moins 3 caractères</div>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="userEmail">Email <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <input
+                  type="email"
+                  id="userEmail"
+                  formControlName="userEmail"
+                  class="form-control"
+                  placeholder="Votre adresse email"
+                  [ngClass]="{ 'is-invalid': submitted && f['userEmail'].errors }"
+                >
+              </div>
+              <div *ngIf="submitted && f['userEmail'].errors" class="invalid-feedback">
+                <div *ngIf="f['userEmail'].errors['required']">L'email est requis</div>
+                <div *ngIf="f['userEmail'].errors['email']">Veuillez entrer une adresse email valide</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Détails de la réclamation -->
+          <div class="col-md-6">
+            <div class="form-group mb-3">
+              <label for="category">Catégorie <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                <select
+                  id="category"
+                  formControlName="category"
+                  class="form-select"
+                  [ngClass]="{ 'is-invalid': submitted && f['category'].errors }"
+                >
+                  <option *ngFor="let category of categories" [value]="category">
+                    {{ category | titlecase }}
+                  </option>
+                </select>
+              </div>
+              <div *ngIf="submitted && f['category'].errors" class="invalid-feedback">
+                <div *ngIf="f['category'].errors['required']">La catégorie est requise</div>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="priority">Priorité</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-flag"></i></span>
+                <select
+                  id="priority"
+                  formControlName="priority"
+                  class="form-select"
+                >
+                  <option *ngFor="let priority of priorities" [value]="priority">
+                    {{ priority | titlecase }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sujet et livre concerné -->
+          <div class="col-12">
+            <div class="form-group mb-3">
+              <label for="subject">Sujet <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-heading"></i></span>
+                <input
+                  type="text"
+                  id="subject"
+                  formControlName="subject"
+                  class="form-control"
+                  placeholder="Sujet de votre réclamation"
+                  [ngClass]="{ 'is-invalid': submitted && f['subject'].errors }"
+                >
+              </div>
+              <div *ngIf="submitted && f['subject'].errors" class="invalid-feedback">
+                <div *ngIf="f['subject'].errors['required']">Le sujet est requis</div>
+                <div *ngIf="f['subject'].errors['minlength']">Le sujet doit contenir au moins 5 caractères</div>
+                <div *ngIf="f['subject'].errors['maxlength']">Le sujet ne doit pas dépasser 100 caractères</div>
+              </div>
+            </div>
+
+            <!-- Section livre temporairement désactivée (XAMPP non démarré) -->
+            <!--
+            <div class="form-group mb-3">
+              <label for="bookId">Livre concerné (optionnel)</label>
+              <select
+                id="bookId"
+                formControlName="bookId"
+                class="form-select"
+                (change)="onBookSelect($event)"
+              >
+                <option value="">-- Sélectionnez un livre --</option>
+                <option *ngFor="let book of books" [value]="book.id">
+                  {{ book.title }} ({{ book.author }})
+                </option>
+              </select>
+              <div *ngIf="loadingBooks" class="text-muted small mt-1">
+                <i class="fas fa-spinner fa-spin"></i> Chargement des livres...
+              </div>
+            </div>
+            -->
+
+            <div class="form-group mb-3">
+              <label for="description">Description détaillée <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text align-items-start" style="height: 100%;"><i class="fas fa-comment-alt"></i></span>
+                <textarea
+                  id="description"
+                  formControlName="description"
+                  class="form-control"
+                  rows="6"
+                  placeholder="Décrivez votre problème ou suggestion en détail..."
+                  [ngClass]="{ 'is-invalid': submitted && f['description'].errors }"
+                ></textarea>
+              </div>
+              <div *ngIf="submitted && f['description'].errors" class="invalid-feedback">
+                <div *ngIf="f['description'].errors['required']">La description est requise</div>
+                <div *ngIf="f['description'].errors['minlength']">La description doit contenir au moins 10 caractères</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages d'erreur et de succès -->
+        <div *ngIf="error" class="alert alert-danger mb-4 p-3 text-center">
+          <i class="fas fa-exclamation-circle me-2"></i> {{ error }}
+        </div>
+
+        <div *ngIf="success" class="alert alert-success mb-4 p-4 text-center">
+          <i class="fas fa-check-circle me-2 fs-4"></i>
+          <h4 class="alert-heading mb-2">{{ success }}</h4>
+          <p class="mb-0">Merci pour votre retour. Nous vous redirigerons vers la page d'accueil dans quelques instants.</p>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="form-actions d-flex justify-content-center gap-3 mt-4">
+          <button type="button" class="btn btn-outline-secondary btn-lg" routerLink="/">
+            <i class="fas fa-times me-2"></i> Annuler
+          </button>
+          <button type="submit" class="btn btn-primary btn-lg" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            <i *ngIf="!loading" class="fas fa-paper-plane me-2"></i> Soumettre ma réclamation
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+<app-footer></app-footer>

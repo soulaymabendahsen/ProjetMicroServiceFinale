@@ -1,0 +1,15 @@
+<div class="payment-container" *ngIf="!isLoading" [ngClass]="{'success': isSuccess, 'failed': !isSuccess}">
+    <div class="payment-card">
+        <mat-icon class="status-icon">{{ isSuccess ? 'check_circle' : 'error' }}</mat-icon>
+        <h2>{{ isSuccess ? 'Paiement réussi' : 'Paiement échoué' }}</h2>
+        <p>{{ isSuccess ? 'Votre paiement a été traité avec succès !' : 'Le traitement de votre paiement a échoué.' }}</p>
+        <button mat-raised-button [color]="isSuccess ? 'primary' : 'warn'" (click)="navigateToHome()">
+            OK
+        </button>
+    </div>
+</div>
+
+<div class="loading-spinner" *ngIf="isLoading">
+    <mat-icon>refresh</mat-icon>
+    <p>Vérification du paiement en cours...</p>
+</div>

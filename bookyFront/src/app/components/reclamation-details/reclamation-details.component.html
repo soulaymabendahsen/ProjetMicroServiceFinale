@@ -1,0 +1,141 @@
+<section class="complaint-details-section padding-large">
+  <div class="container">
+    <div class="section-title d-md-flex justify-content-between align-items-center mb-4">
+      <h3 class="d-flex align-items-center">Détails de la réclamation</h3>
+      <button class="btn btn-outline-primary" routerLink="/reclamations">
+        <i class="fas fa-arrow-left"></i> Retour à la liste
+      </button>
+    </div>
+
+    <!-- Indicateur de chargement -->
+    <div *ngIf="loading" class="text-center py-4">
+      <div class="spinner-border" style="color: var(--primary-color);" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="error" class="alert alert-danger">
+      <i class="fas fa-exclamation-circle me-2"></i> {{ error }}
+    </div>
+
+    <!-- Message de succès -->
+    <div *ngIf="success" class="alert alert-success">
+      <i class="fas fa-check-circle me-2"></i> {{ success }}
+    </div>
+
+    <!-- Détails de la réclamation -->
+    <div *ngIf="!loading && !error && complaint" class="complaint-details-container">
+      <div class="complaint-header">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="complaint-title">{{ complaint.subject }}</h4>
+          <span [ngClass]="getStatusClass(complaint.status)" class="badge status-badge">
+            {{ complaint.status }}
+          </span>
+        </div>
+        <div class="complaint-meta">
+          <span class="meta-item">
+            <i class="fas fa-user"></i> {{ complaint.userName }} ({{ complaint.userEmail }})
+          </span>
+          <span class="meta-item">
+            <i class="fas fa-calendar-alt"></i> {{ formatDate(complaint.createdAt) }}
+          </span>
+          <span class="meta-item">
+            <i class="fas fa-tag"></i> {{ complaint.category }}
+          </span>
+          <span class="meta-item">
+            <i class="fas fa-flag"></i> Priorité: {{ complaint.priority }}
+          </span>
+          <span *ngIf="complaint.bookTitle" class="meta-item">
+            <i class="fas fa-book"></i> Livre: {{ complaint.bookTitle }}
+          </span>
+        </div>
+      </div>
+
+      <div class="complaint-content">
+        <div class="content-section">
+          <h5>Description</h5>
+          <div class="content-text">
+            {{ complaint.description }}
+          </div>
+        </div>
+
+        <div *ngIf="complaint.adminResponse" class="content-section admin-response">
+          <h5>Réponse de l'administrateur</h5>
+          <div class="content-text">
+            <p>{{ complaint.adminResponse }}</p>
+            <div class="response-meta">
+              <small>Répondu le: {{ formatDate(complaint.adminResponseDate) }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Admin (visible uniquement pour les administrateurs) -->
+      <div *ngIf="isAdmin" class="admin-section">
+        <h5 class="admin-section-title">Actions administrateur</h5>
+
+        <div class="admin-actions">
+          <div class="row">
+            <!-- Mise à jour du statut -->
+            <div class="col-md-6">
+              <div class="action-card">
+                <h6>Mettre à jour le statut</h6>
+                <form [formGroup]="statusForm" (ngSubmit)="updateStatus()" class="d-flex gap-2">
+                  <select formControlName="status" class="form-select">
+                    <option *ngFor="let status of statuses" [value]="status">
+                      {{ status | titlecase }}
+                    </option>
+                  </select>
+                  <button type="submit" class="btn btn-primary" [disabled]="statusForm.invalid || loading">
+                    <i class="fas fa-save"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="col-md-6">
+              <div class="action-card">
+                <h6>Actions rapides</h6>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-success" (click)="markAsResolved()" [disabled]="complaint.isResolved || loading">
+                    <i class="fas fa-check"></i> Marquer comme résolue
+                  </button>
+                  <button class="btn btn-danger" (click)="deleteComplaint()" [disabled]="loading">
+                    <i class="fas fa-trash"></i> Supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ajouter une réponse -->
+            <div class="col-12 mt-3">
+              <div class="action-card">
+                <h6>Ajouter une réponse</h6>
+                <form [formGroup]="responseForm" (ngSubmit)="submitAdminResponse()">
+                  <div class="form-group mb-3">
+                    <textarea
+                      formControlName="adminResponse"
+                      class="form-control"
+                      rows="4"
+                      placeholder="Votre réponse à cette réclamation..."
+                      [ngClass]="{ 'is-invalid': responseForm.get('adminResponse')?.invalid && responseForm.get('adminResponse')?.touched }"
+                    ></textarea>
+                    <div *ngIf="responseForm.get('adminResponse')?.invalid && responseForm.get('adminResponse')?.touched" class="invalid-feedback">
+                      La réponse doit contenir au moins 5 caractères
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary" [disabled]="responseForm.invalid || submittingResponse">
+                    <span *ngIf="submittingResponse" class="spinner-border spinner-border-sm me-2"></span>
+                    Envoyer la réponse
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

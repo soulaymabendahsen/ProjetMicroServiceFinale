@@ -1,0 +1,328 @@
+/* Variables basées sur la charte graphique */
+:root {
+  --primary-color: #F86D72;
+  --black-color: #272727;
+  --white-color: #fff;
+  --gray-color: #F3F3F3;
+  --gray-color-200: #E3E3E3;
+  --gray-color-300: #E0E0E0;
+  --accent-color: #717171;
+  --light-color: #F8F8F8;
+  --transition-speed: 0.3s;
+  --box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.08);
+  --border-radius: 8px;
+  --card-border-radius: 12px;
+  --btn-border-radius: 200px;
+}
+
+/* Styles pour la section des détails de réclamation */
+.padding-large {
+  padding: 3rem 0;
+}
+
+.section-title h3 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--black-color);
+  margin-bottom: 0;
+}
+
+/* Conteneur des détails de réclamation */
+.complaint-details-container {
+  background-color: var(--white-color);
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+/* En-tête de la réclamation */
+.complaint-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--gray-color-200);
+  background-color: var(--light-color);
+}
+
+.complaint-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--black-color);
+  margin: 0;
+}
+
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-pending {
+  background-color: #FFF9C4;
+  color: #F57F17;
+}
+
+.status-in-progress {
+  background-color: #BBDEFB;
+  color: #1565C0;
+}
+
+.status-resolved {
+  background-color: #C8E6C9;
+  color: #2E7D32;
+}
+
+.status-rejected {
+  background-color: #FFCDD2;
+  color: #C62828;
+}
+
+.complaint-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  color: var(--accent-color);
+  font-size: 0.9rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.meta-item i {
+  color: var(--primary-color);
+}
+
+/* Contenu de la réclamation */
+.complaint-content {
+  padding: 1.5rem;
+}
+
+.content-section {
+  margin-bottom: 1.5rem;
+}
+
+.content-section h5 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--black-color);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--gray-color-200);
+}
+
+.content-text {
+  line-height: 1.6;
+  color: var(--black-color);
+}
+
+.admin-response {
+  background-color: var(--light-color);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--primary-color);
+}
+
+.response-meta {
+  margin-top: 1rem;
+  color: var(--accent-color);
+  font-style: italic;
+}
+
+/* Section admin */
+.admin-section {
+  padding: 1.5rem;
+  background-color: var(--light-color);
+  border-top: 1px solid var(--gray-color-200);
+}
+
+.admin-section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--black-color);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--gray-color-200);
+}
+
+.action-card {
+  background-color: var(--white-color);
+  border-radius: var(--border-radius);
+  padding: 1.25rem;
+  box-shadow: var(--box-shadow);
+  height: 100%;
+}
+
+.action-card h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--black-color);
+  margin-bottom: 1rem;
+}
+
+/* Formulaires */
+.form-select, .form-control {
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--gray-color-300);
+  background-color: var(--white-color);
+  color: var(--black-color);
+  font-size: 0.95rem;
+  transition: all var(--transition-speed) ease;
+}
+
+.form-select:focus, .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(248, 109, 114, 0.25);
+  outline: none;
+}
+
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #dc3545;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Boutons */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--btn-border-radius);
+  font-weight: 500;
+  transition: all var(--transition-speed) ease;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--white-color);
+}
+
+.btn-primary:hover {
+  background-color: #e55a5f;
+  border-color: #e55a5f;
+}
+
+.btn-success {
+  background-color: #4CAF50;
+  border-color: #4CAF50;
+  color: var(--white-color);
+}
+
+.btn-success:hover {
+  background-color: #43A047;
+  border-color: #43A047;
+}
+
+.btn-danger {
+  background-color: #F44336;
+  border-color: #F44336;
+  color: var(--white-color);
+}
+
+.btn-danger:hover {
+  background-color: #E53935;
+  border-color: #E53935;
+}
+
+.btn-outline-primary {
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Alertes */
+.alert {
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border-color: #f5c2c7;
+  color: #842029;
+}
+
+.alert-success {
+  background-color: #d1e7dd;
+  border-color: #badbcc;
+  color: #0f5132;
+}
+
+/* Spinner */
+.spinner-border {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  vertical-align: text-bottom;
+  border: 0.25em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spinner-border 0.75s linear infinite;
+}
+
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.2em;
+}
+
+@keyframes spinner-border {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .complaint-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .action-card {
+    margin-bottom: 1rem;
+  }
+
+  .admin-actions .d-flex {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .admin-actions .d-flex button {
+    width: 100%;
+  }
+
+  .section-title {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 1rem;
+  }
+
+  .section-title button {
+    width: 100%;
+  }
+}

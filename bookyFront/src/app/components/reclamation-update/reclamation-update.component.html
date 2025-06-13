@@ -1,0 +1,222 @@
+<section class="update-complaint-section padding-large">
+  <div class="container">
+    <div class="section-title d-md-flex justify-content-between align-items-center mb-4">
+      <h3 class="d-flex align-items-center">Modifier la réclamation</h3>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" [routerLink]="['/reclamation-details', complaintId]">
+          <i class="fas fa-eye"></i> Voir les détails
+        </button>
+        <button class="btn btn-outline-secondary" routerLink="/reclamations">
+          <i class="fas fa-arrow-left"></i> Retour à la liste
+        </button>
+      </div>
+    </div>
+
+    <!-- Indicateur de chargement -->
+    <div *ngIf="loading" class="text-center py-4">
+      <div class="spinner-border" style="color: var(--primary-color);" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+
+    <!-- Message d'erreur -->
+    <div *ngIf="error" class="alert alert-danger">
+      <i class="fas fa-exclamation-circle me-2"></i> {{ error }}
+    </div>
+
+    <!-- Message de succès -->
+    <div *ngIf="success" class="alert alert-success">
+      <i class="fas fa-check-circle me-2"></i> {{ success }}
+    </div>
+
+    <!-- Formulaire de modification -->
+    <div *ngIf="!loading && !error" class="complaint-form-container">
+      <form [formGroup]="complaintForm" (ngSubmit)="onSubmit()">
+        <div class="row">
+          <!-- Informations personnelles -->
+          <div class="col-md-6">
+            <div class="form-group mb-3">
+              <label for="userName">Nom complet <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                id="userName"
+                formControlName="userName"
+                class="form-control"
+                [ngClass]="{ 'is-invalid': submitted && f['userName'].errors }"
+              >
+              <div *ngIf="submitted && f['userName'].errors" class="invalid-feedback">
+                <div *ngIf="f['userName'].errors['required']">Le nom est requis</div>
+                <div *ngIf="f['userName'].errors['minlength']">Le nom doit contenir au moins 3 caractères</div>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="userEmail">Email <span class="text-danger">*</span></label>
+              <input
+                type="email"
+                id="userEmail"
+                formControlName="userEmail"
+                class="form-control"
+                [ngClass]="{ 'is-invalid': submitted && f['userEmail'].errors }"
+              >
+              <div *ngIf="submitted && f['userEmail'].errors" class="invalid-feedback">
+                <div *ngIf="f['userEmail'].errors['required']">L'email est requis</div>
+                <div *ngIf="f['userEmail'].errors['email']">Veuillez entrer une adresse email valide</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Détails de la réclamation -->
+          <div class="col-md-6">
+            <div class="form-group mb-3">
+              <label for="category">Catégorie <span class="text-danger">*</span></label>
+              <select
+                id="category"
+                formControlName="category"
+                class="form-select"
+                [ngClass]="{ 'is-invalid': submitted && f['category'].errors }"
+              >
+                <option *ngFor="let category of categories" [value]="category">
+                  {{ category | titlecase }}
+                </option>
+              </select>
+              <div *ngIf="submitted && f['category'].errors" class="invalid-feedback">
+                <div *ngIf="f['category'].errors['required']">La catégorie est requise</div>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="priority">Priorité</label>
+              <select
+                id="priority"
+                formControlName="priority"
+                class="form-select"
+              >
+                <option *ngFor="let priority of priorities" [value]="priority">
+                  {{ priority | titlecase }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Sujet et livre concerné -->
+          <div class="col-12">
+            <div class="form-group mb-3">
+              <label for="subject">Sujet <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                id="subject"
+                formControlName="subject"
+                class="form-control"
+                [ngClass]="{ 'is-invalid': submitted && f['subject'].errors }"
+              >
+              <div *ngIf="submitted && f['subject'].errors" class="invalid-feedback">
+                <div *ngIf="f['subject'].errors['required']">Le sujet est requis</div>
+                <div *ngIf="f['subject'].errors['minlength']">Le sujet doit contenir au moins 5 caractères</div>
+                <div *ngIf="f['subject'].errors['maxlength']">Le sujet ne doit pas dépasser 100 caractères</div>
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="bookId">Livre concerné (optionnel)</label>
+              <select
+                id="bookId"
+                formControlName="bookId"
+                class="form-select"
+                (change)="onBookSelect($event)"
+              >
+                <option value="">-- Sélectionnez un livre --</option>
+                <option *ngFor="let book of books" [value]="book.id">
+                  {{ book.title }} ({{ book.author }})
+                </option>
+              </select>
+              <div *ngIf="loadingBooks" class="text-muted small mt-1">
+                <i class="fas fa-spinner fa-spin"></i> Chargement des livres...
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="description">Description détaillée <span class="text-danger">*</span></label>
+              <textarea
+                id="description"
+                formControlName="description"
+                class="form-control"
+                rows="6"
+                [ngClass]="{ 'is-invalid': submitted && f['description'].errors }"
+              ></textarea>
+              <div *ngIf="submitted && f['description'].errors" class="invalid-feedback">
+                <div *ngIf="f['description'].errors['required']">La description est requise</div>
+                <div *ngIf="f['description'].errors['minlength']">La description doit contenir au moins 10 caractères</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Admin (visible uniquement pour les administrateurs) -->
+          <div *ngIf="isAdmin" class="col-12 mt-3">
+            <div class="admin-section">
+              <h5 class="admin-section-title">Options administrateur</h5>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="status">Statut</label>
+                    <select
+                      id="status"
+                      formControlName="status"
+                      class="form-select"
+                    >
+                      <option *ngFor="let status of statuses" [value]="status">
+                        {{ status | titlecase }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group mb-3">
+                    <label for="isResolved">Résolution</label>
+                    <div class="form-check form-switch mt-2">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="isResolved"
+                        formControlName="isResolved"
+                      >
+                      <label class="form-check-label" for="isResolved">
+                        Marquer comme résolue
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <div class="form-group mb-3">
+                    <label for="adminResponse">Réponse administrateur</label>
+                    <textarea
+                      id="adminResponse"
+                      formControlName="adminResponse"
+                      class="form-control"
+                      rows="4"
+                      placeholder="Votre réponse à cette réclamation..."
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="form-actions d-flex justify-content-end gap-3 mt-4">
+          <button type="button" class="btn btn-outline-secondary" routerLink="/reclamations">
+            Annuler
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            Mettre à jour la réclamation
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

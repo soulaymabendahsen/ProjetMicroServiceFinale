@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  gestionlivres:
+    image: sarrahsahli/gestionlivres:latest
+    container_name: gestionlivres-compose
+    ports:
+      - "8095:8095"
+    environment:
+      - spring.application.name=GestionLivres
+      - server.port=8095
+      # Vous pouvez ajouter d'autres variables d'environnement si nécessaire
+    volumes:
+      # Pour persister les données H2 et les uploads
+      - gestionlivres-data:/Database/Data
+      - gestionlivres-uploads:/uploads
+
+volumes:
+  gestionlivres-data:
+  gestionlivres-uploads:

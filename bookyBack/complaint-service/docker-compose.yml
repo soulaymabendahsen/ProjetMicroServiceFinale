@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  complaint-service:
+    build: .
+    container_name: complaint-service
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongo:27017/complaints
+      - EUREKA_HOST=eureka-server
+      - EUREKA_PORT=8761
+      - APP_NAME=complaint-service
+      - APP_PORT=3000
+    depends_on:
+      - mongo
+    networks:
+      - complaint-network
+      - booki-network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo-complaints
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - complaint-network
+
+networks:
+  complaint-network:
+    driver: bridge
+  booki-network:
+    external: true
+
+volumes:
+  mongo-data:
