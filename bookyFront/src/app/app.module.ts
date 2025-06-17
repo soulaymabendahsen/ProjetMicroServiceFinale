@@ -34,6 +34,8 @@ import { ReclamationDetailsComponent } from './components/reclamation-details/re
 import { ReclamationListComponent } from './components/reclamation-list/reclamation-list.component';
 import { ReclamationAddComponent } from './components/reclamation-add/reclamation-add.component';
 import { ReclamationUpdateComponent } from './components/reclamation-update/reclamation-update.component';
+import { KeycloakHttpInterceptor } from './services/keycloak.interceptor';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -60,6 +62,7 @@ import { ReclamationUpdateComponent } from './components/reclamation-update/recl
     ReclamationListComponent,
     ReclamationAddComponent,
     ReclamationUpdateComponent,
+    
   ],
   imports: [
     BrowserModule,
@@ -76,10 +79,16 @@ import { ReclamationUpdateComponent } from './components/reclamation-update/recl
     MatIconModule,
     MatButtonModule
   ],
-  providers: [
-    DatePipe,
-    CurrencyPipe
-  ],
+ providers: [
+  DatePipe,
+  CurrencyPipe,
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: KeycloakHttpInterceptor,
+    multi: true
+  }
+],
+
   bootstrap: [AppComponent]
 })
 export class AppModule { }
