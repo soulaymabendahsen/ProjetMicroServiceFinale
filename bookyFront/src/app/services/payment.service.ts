@@ -2,15 +2,15 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Payment } from '../models/Payment';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PaymentService {
+  private apiUrl = `${environment.gatewayUrl}/payment`;
 
-  private apiUrl = 'http://localhost:8085/payment'; // Adaptez selon votre URL backend
-
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   // Récupérer tous les paiements
   getAllPayments(): Observable<Payment[]> {
@@ -20,12 +20,12 @@ export class PaymentService {
   // Générer une facture PDF
   downloadPaymentPDF(paymentId: number): Observable<Blob> {
     const headers = new HttpHeaders({
-      'Accept': 'application/pdf'
+      Accept: 'application/pdf',
     });
 
     return this.http.get(`${this.apiUrl}/${paymentId}/invoice`, {
       headers: headers,
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 
@@ -35,16 +35,16 @@ export class PaymentService {
   }
 
   getPaymentStatus(sessionId: string): Observable<string> {
-    return this.http.get<string>(`${this.apiUrl}/payment-status?sessionId=${sessionId}`);
+    return this.http.get<string>(
+      `${this.apiUrl}/payment-status?sessionId=${sessionId}`
+    );
   }
 
   retryPayment(paymentId: number): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/retry`, { paymentId });
   }
- 
-  
+
   deletePayment(paymentId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${paymentId}`);
   }
-  
 }

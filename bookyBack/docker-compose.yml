@@ -3,50 +3,185 @@ version: '3.8'
 services:
   eureka-server:
     build: ./Eureka
+    container_name: eureka-server
     ports:
       - "8761:8761"
     networks:
       - booki-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  config-server:
+    build:
+      context: ./ServerConfig
+      dockerfile: Dockerfile
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_APPLICATION_NAME=configserver
+      - SERVER_PORT=8888
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_PROFILES_ACTIVE=native
+      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCHLOCATIONS=file:/config
+      - STRIPE_SECRET_KEY=sk_test_51RezfWI0cj2k0JXHxXLPQasIY8qlRdU1d15nvkumU4oX8M7XOfDQaKdinmyhGuZOSN2Gu40suRuFlMCbb7RKmIMV00pFaYAvHQ
+      - STRIPE_PUBLIC_KEY=pk_test_51RezfWI0cj2k0JXHBN4OF9MrJXawRK1AVMZIBEw7CZR6ujngF2DS9Q0aNU5AXYLEBqn84kwhUcgywDxmEugTgYsA00TumuuTtq
+      - DB_PASSWORD=
+      - GMAIL_USERNAME=yassinosb7@gmail.com
+      - GMAIL_PASSWORD=sbgo jgya ejct iciq
+    volumes:
+      - ./ServerConfig/config:/config
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - booki-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  gateway:
+    build:
+      context: ./Gateway
+      dockerfile: Dockerfile
+    container_name: gateway
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_APPLICATION_NAME=Gateway
+      - SERVER_PORT=8083
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-server:8888
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://keycloak:8080/realms/JobBoardKeyClock
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/JobBoardKeyClock/protocol/openid-connect/certs
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      keycloak:
+        condition: service_started
+    networks:
+      - booki-network
 
   book-service:
-    image: sarrahsahli/gestionlivres:latest
+    build: ./GestionLivres
+    container_name: book-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_APPLICATION_NAME=GestionLivres
+      - SERVER_PORT=8095
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - SPRING_PROFILES_ACTIVE=default
     ports:
       - "8095:8095"
+    volumes:
+      - gestionlivres-data:/Database/Data
+      - gestionlivres-uploads:/uploads
     networks:
       - booki-network
     depends_on:
-      - eureka-server
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
 
   cart-service:
     build: ./Cart
+    container_name: cart-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_APPLICATION_NAME=cart-service
+      - SERVER_PORT=8081
     ports:
       - "8081:8081"
     networks:
       - booki-network
     depends_on:
-      - eureka-server
-      - book-service
+      eureka-server:
+        condition: service_healthy
+      book-service:
+        condition: service_started
 
   complaint-service:
-    build: ./complaint-service
+    build:
+        context: ./complaint-service
+        dockerfile: Dockerfile
+    container_name: complaint-service
     environment:
       - PORT=3000
-      - MONGODB_URI=mongodb://mongo:27017/complaints
+      - MONGODB_URI=mongodb://mongo-complaints:27017/complaints
       - EUREKA_HOST=eureka-server
       - EUREKA_PORT=8761
       - APP_NAME=complaint-service
       - APP_PORT=3000
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - SPRING_PROFILES_ACTIVE=default
+      - HOST_NAME=complaint-service
+      - IP_ADDR=complaint-service
     ports:
       - "3000:3000"
     networks:
       - booki-network
     depends_on:
-      - eureka-server
-      - mongo
+      eureka-server:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
+  paiement-service:
+    build:
+      context: ./paiement
+      dockerfile: Dockerfile
+    container_name: paiement-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_APPLICATION_NAME=paiement-service
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/bookstore?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - STRIPE_SECRET_KEY=sk_test_51RezfWI0cj2k0JXHxXLPQasIY8qlRdU1d15nvkumU4oX8M7XOfDQaKdinmyhGuZOSN2Gu40suRuFlMCbb7RKmIMV00pFaYAvHQ
+      - STRIPE_PUBLIC_KEY=pk_test_51RezfWI0cj2k0JXHBN4OF9MrJXawRK1AVMZIBEw7CZR6ujngF2DS9Q0aNU5AXYLEBqn84kwhUcgywDxmEugTgYsA00TumuuTtq
+      - SPRING_MAIL_HOST=smtp.gmail.com
+      - SPRING_MAIL_PORT=587
+      - SPRING_MAIL_USERNAME=yassinosb7@gmail.com
+      - SPRING_MAIL_PASSWORD=sbgo jgya ejct iciq
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - SPRING_PROFILES_ACTIVE=default
+    volumes:
+      - ./paiement/.env:/.env
+    networks:
+      - booki-network
+
+  keycloak:
+    build:
+      context: ./keycloak-23.0.0
+      dockerfile: Dockerfile
+    container_name: keycloak
+    ports:
+      - "8084:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    command: start-dev
+    networks:
+      - booki-network
 
   mongo:
     image: mongo:latest
@@ -57,6 +192,30 @@ services:
       - mongo-data:/data/db
     networks:
       - booki-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=bookstore
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - booki-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
 
 networks:
   booki-network:
@@ -64,3 +223,6 @@ networks:
 
 volumes:
   mongo-data:
+  mysql-data:
+  gestionlivres-data:
+  gestionlivres-uploads:

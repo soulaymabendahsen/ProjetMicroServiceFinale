@@ -7,14 +7,12 @@ import { Router } from '@angular/router';
 import { CartService } from 'src/app/services/cart.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CustomSnackBarComponent } from '../custom-snack-bar/custom-snack-bar.component';
-
-
-const API_BASE_URL = 'http://localhost:8095';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-page-books',
   templateUrl: './page-books.component.html',
-  styleUrls: ['./page-books.component.css']
+  styleUrls: ['./page-books.component.css'],
 })
 export class PageBooksComponent implements OnInit, AfterViewInit {
   books: Book[] = [];
@@ -76,36 +74,18 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
         dynamicBullets: true,
       },
       breakpoints: {
-        320: {
-          slidesPerView: 1,
-          spaceBetween: 20,
-          centeredSlides: true
-        },
-        640: {
-          slidesPerView: 2,
-          spaceBetween: 20,
-          centeredSlides: false
-        },
-        992: {
-          slidesPerView: 3,
-          spaceBetween: 30,
-          centeredSlides: false
-        }
+        320: { slidesPerView: 1, spaceBetween: 20, centeredSlides: true },
+        640: { slidesPerView: 2, spaceBetween: 20, centeredSlides: false },
+        992: { slidesPerView: 3, spaceBetween: 30, centeredSlides: false },
       },
       on: {
-        init: () => {
-          console.log('Swiper initialized');
-        },
-        slideChange: () => {
-          console.log('Slide changed');
-        },
-        slideNextTransitionStart: () => {
-          console.log('Next slide transition started');
-        },
-        slidePrevTransitionStart: () => {
-          console.log('Previous slide transition started');
-        }
-      }
+        init: () => console.log('Swiper initialized'),
+        slideChange: () => console.log('Slide changed'),
+        slideNextTransitionStart: () =>
+          console.log('Next slide transition started'),
+        slidePrevTransitionStart: () =>
+          console.log('Previous slide transition started'),
+      },
     });
   }
 
@@ -113,20 +93,6 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.bookService.getBooks().subscribe({
       next: (books) => {
-        console.log('Livres chargés depuis l\'API:', books);
-
-        // Vérification des langues disponibles
-        const languages = books.map(book => book.language);
-        const uniqueLanguages = [...new Set(languages)];
-        console.log('Langues disponibles dans les livres:', uniqueLanguages);
-
-        // Comptage des livres par langue
-        const languageCounts = uniqueLanguages.reduce((acc, lang) => {
-          acc[lang] = books.filter(book => book.language === lang).length;
-          return acc;
-        }, {} as {[key: string]: number});
-        console.log('Nombre de livres par langue:', languageCounts);
-
         this.books = books;
         this.applyFilter();
         this.loading = false;
@@ -134,48 +100,46 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
       error: (error) => {
         console.error('Error loading books:', error);
         this.loading = false;
-      }
+      },
     });
   }
 
   loadFeaturedBooks(): void {
     this.bookService.getBooks().subscribe({
-      next: (books) => {
-        // Pour l'exemple, on prend les 4 premiers livres comme featured
-        this.featuredBooks = books.slice(0, 4);
-      }
+      next: (books) => (this.featuredBooks = books.slice(0, 4)),
     });
   }
 
   loadLatestBooks(): void {
     this.bookService.getBooks().subscribe({
       next: (books) => {
-        // On trie par date de publication et on prend les 4 plus récents
         this.latestBooks = [...books]
-          .sort((a, b) => new Date(b.publicationDate).getTime() - new Date(a.publicationDate).getTime())
+          .sort(
+            (a, b) =>
+              new Date(b.publicationDate).getTime() -
+              new Date(a.publicationDate).getTime()
+          )
           .slice(0, 4);
-      }
+      },
     });
   }
 
   loadBestRatedBooks(): void {
     this.bookService.getBooks().subscribe({
       next: (books) => {
-        // On filtre les livres avec une note et on prend les 4 mieux notés
         this.bestRatedBooks = [...books]
-          .filter(book => book.rating)
+          .filter((book) => book.rating)
           .sort((a, b) => (b.rating || 0) - (a.rating || 0))
           .slice(0, 4);
-      }
+      },
     });
   }
 
   loadOnSaleBooks(): void {
     this.bookService.getBooks().subscribe({
       next: (books) => {
-        // On filtre les livres en promotion et on prend les 4 premiers
-        this.onSaleBooks = books.filter(book => book.onSale).slice(0, 4);
-      }
+        this.onSaleBooks = books.filter((book) => book.onSale).slice(0, 4);
+      },
     });
   }
 
@@ -183,16 +147,13 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.bookService.getBooks().subscribe({
       next: (books) => {
-        console.log('Tous les livres reçus:', books);
-        // On affiche tous les livres sans filtrage
         this.bestSellingBooks = books;
-        console.log('Livres affichés:', this.bestSellingBooks);
         this.loading = false;
       },
       error: (error) => {
         console.error('Erreur lors du chargement des livres:', error);
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -222,44 +183,31 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
 
   applyFilter(): void {
     let filtered = [...this.books];
-    console.log('Livres disponibles:', this.books);
 
-    // Filtre par langue
     if (this.selectedLanguage !== 'all') {
-      // Mapping des noms de langues affichés vers les valeurs de l'énumération
-      const languageMap: {[key: string]: string} = {
-        'français': 'FRANCAIS',
-        'anglais': 'ANGLAIS',
-        'arabe': 'ARABE'
+      const languageMap: { [key: string]: string } = {
+        français: 'FRANCAIS',
+        anglais: 'ANGLAIS',
+        arabe: 'ARABE',
       };
-
       const languageValue = languageMap[this.selectedLanguage];
-      console.log('Filtrage par langue:', this.selectedLanguage, '→', languageValue);
-
-      filtered = filtered.filter(book => {
-        console.log('Livre:', book.title, 'Langue:', book.language);
-        return book.language === languageValue;
-      });
-
-      console.log('Livres filtrés par langue:', filtered.length);
+      filtered = filtered.filter((book) => book.language === languageValue);
     }
 
-    // Filtre par promotion
     if (this.showPromotionsOnly) {
-      filtered = filtered.filter(book => book.onSale);
+      filtered = filtered.filter((book) => book.onSale);
     }
 
-    // Filtre par recherche
     if (this.searchTerm) {
       const search = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(book =>
-        book.title.toLowerCase().includes(search) ||
-        book.author.toLowerCase().includes(search) ||
-        book.genre.toLowerCase().includes(search)
+      filtered = filtered.filter(
+        (book) =>
+          book.title.toLowerCase().includes(search) ||
+          book.author.toLowerCase().includes(search) ||
+          book.genre.toLowerCase().includes(search)
       );
     }
 
-    // Tri
     filtered.sort((a, b) => {
       const comparison = a.title.localeCompare(b.title);
       return this.sortAscending ? comparison : -comparison;
@@ -269,38 +217,35 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
   }
 
   getFilterTitle(): string {
-    if (this.showPromotionsOnly) {
-      return 'Livres en promotion';
-    }
-    if (this.searchTerm && this.selectedLanguage === 'all') {
+    if (this.showPromotionsOnly) return 'Livres en promotion';
+    if (this.searchTerm && this.selectedLanguage === 'all')
       return `Résultats pour "${this.searchTerm}"`;
-    }
     switch (this.selectedLanguage) {
-      case 'français': return 'Livres Français';
-      case 'arabe': return 'Livres Arabes';
-      case 'anglais': return 'Livres Anglais';
-      default: return 'Tous nos livres';
+      case 'français':
+        return 'Livres Français';
+      case 'arabe':
+        return 'Livres Arabes';
+      case 'anglais':
+        return 'Livres Anglais';
+      default:
+        return 'Tous nos livres';
     }
   }
 
   getImageUrl(imageUrl: string | undefined): string {
-    if (!imageUrl) {
-      return 'assets/delivry.jpeg';
-    }
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    if (!imageUrl) return 'assets/delivry.jpeg';
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'))
       return imageUrl;
-    }
-    return `${API_BASE_URL}${imageUrl}`;
+    return `${environment.gatewayUrl}${imageUrl}`;
   }
 
   onImageError(event: any): void {
-    console.error('Erreur de chargement de l\'image:', event.target.src);
+    console.error("Erreur de chargement de l'image:", event.target.src);
     event.target.src = 'assets/delivry.jpeg';
   }
 
   getRatingStars(rating: number | undefined): number[] {
-    if (!rating) return [];
-    return Array(Math.floor(rating)).fill(0);
+    return rating ? Array(Math.floor(rating)).fill(0) : [];
   }
 
   isAddingToCart = false;
@@ -310,7 +255,7 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
     const quantity = 1;
 
     this.cartService.addToCart(book.id, quantity).subscribe({
-      next: (response) => {
+      next: () => {
         this.isAddingToCart = false;
         this.showSuccess(`${book.title} added to cart`);
       },
@@ -318,51 +263,41 @@ export class PageBooksComponent implements OnInit, AfterViewInit {
         console.error('Error adding to cart:', err);
         this.isAddingToCart = false;
         this.showError(err.message || 'Failed to add to cart');
-      }
+      },
     });
   }
 
   private showSuccess(message: string): void {
     this.snackBar.openFromComponent(CustomSnackBarComponent, {
-      data: {
-        message: message,
-        type: 'success',
-        icon: '✓'
-      },
+      data: { message, type: 'success', icon: '✓' },
       duration: 3000,
-      panelClass: ['top-center-snackbar'], // Changed this
-      horizontalPosition: 'center',        // Center horizontally
-      verticalPosition: 'top',             // Position at top
-      politeness: 'polite'
+      panelClass: ['top-center-snackbar'],
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      politeness: 'polite',
     });
   }
 
   private showError(message: string): void {
     this.snackBar.openFromComponent(CustomSnackBarComponent, {
-      data: {
-        message: message,
-        type: 'error',
-        icon: '!'
-      },
+      data: { message, type: 'error', icon: '!' },
       duration: 5000,
-      panelClass: ['top-center-snackbar'], // Changed this
-      horizontalPosition: 'center',        // Center horizontally
-      verticalPosition: 'top',             // Position at top
-      politeness: 'assertive'
+      panelClass: ['top-center-snackbar'],
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      politeness: 'assertive',
     });
   }
 
   addToWishlist(book: Book): void {
-    // TODO: Implement add to wishlist functionality
     console.log('Adding to wishlist:', book);
   }
 
-  // Méthode pour afficher la langue de manière lisible
   getLanguageDisplay(language: string): string {
-    const languageMap: {[key: string]: string} = {
-      'FRANCAIS': 'Français',
-      'ANGLAIS': 'Anglais',
-      'ARABE': 'Arabe'
+    const languageMap: { [key: string]: string } = {
+      FRANCAIS: 'Français',
+      ANGLAIS: 'Anglais',
+      ARABE: 'Arabe',
     };
     return languageMap[language] || language;
   }

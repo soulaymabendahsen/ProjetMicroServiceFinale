@@ -23,7 +23,7 @@ EXPOSE 3000
 # Variables d'environnement par défaut (peuvent être surchargées lors du déploiement)
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV MONGODB_URI=mongodb://mongo:27017/complaints
+ENV MONGODB_URI=mongodb://mongo-complaints:27017/complaints
 ENV EUREKA_HOST=eureka
 ENV EUREKA_PORT=8761
 ENV APP_NAME=complaint-service
