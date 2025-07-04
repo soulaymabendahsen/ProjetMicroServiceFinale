@@ -39,7 +39,6 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Value("${stripe.secret.key}")
     private String stripeSecretKey;
-
     @Autowired
     private PaymentRepository paymentRepository;
 
@@ -48,10 +47,11 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Autowired
     private UserServiceClient userServiceClient;
-
+//to send confirmation email
     @Autowired
     private JavaMailSender mailSender;
 
+    //templateEngine: generates HTML email from Thymeleaf template
     @Autowired
     private TemplateEngine templateEngine;
 
@@ -194,7 +194,7 @@ public class PaymentServiceImpl implements IPaymentService {
         helper.setTo(payment.getCustomerEmail());
         helper.setSubject("Confirmation de paiement - BookStore");
         helper.setText(htmlContent, true);
-        helper.setFrom("no-reply@bookstore.com", "Équipe BookStore");
+        helper.setFrom("no-reply@bookstore.com", "Équipe BookStore 2ALINFO7");
         // Envoi
         mailSender.send(message);
     }
@@ -221,7 +221,7 @@ public class PaymentServiceImpl implements IPaymentService {
             if(payment.getPaymentStatus() == PaymentStatus.SUCCEEDED) {
                 sendPaymentSuccessEmail(payment);
                 System.out.println("*****************************************************************************************");
-                System.out.println("email envoyé!");
+                System.out.println("email envoyé!!!!");
                 System.out.println("*****************************************************************************************");
             }
             System.out.println("*****************************************************************************************");

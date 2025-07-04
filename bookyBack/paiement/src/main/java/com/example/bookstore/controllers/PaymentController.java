@@ -29,42 +29,54 @@ public class PaymentController {
     @Autowired
     private PdfGeneratorService pdfGeneratorService;
 
+
+
+    //creation de Stripe Checkout Session using the cart and user
+
+    //
+     // redirect the user to Stripe's hosted payment page.
     @PostMapping("/create-session")
     public Map<String, String> createCheckoutSession(@RequestParam Long cartId,@RequestParam Long userId) throws StripeException {
-        String sessionUrl = iPaymentService.createCheckoutSession(cartId, userId);
+        String sessionUrl =
+                iPaymentService.createCheckoutSession(cartId, userId);
         return Map.of("url", sessionUrl);
     }
 
+
+
+    //Si failed
+    //refaire une autre session soulayma  20-6-2025
+    //Retries a failed payment by creating a new Stripe session.
     @PostMapping("/retry")
     public ResponseEntity<Map<String, String>> retryPayment(@RequestBody Map<String, String> request) {
         Long paymentId = Long.parseLong(request.get("paymentId"));
 
         try {
-            // Appeler la méthode retryPayment du service
+            // call la méthode retryPayment du service
             String sessionUrl = iPaymentService.retryPayment(paymentId);
             return ResponseEntity.ok(Map.of("checkoutUrl", sessionUrl));
         } catch (StripeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }
-
+   // Updates payment status in BD to SUCCEEDED !!
     @GetMapping("/success")
     public String paymentSuccess(@RequestParam String sessionId) throws MessagingException, UnsupportedEncodingException {
         iPaymentService.updatePaymentStatus(sessionId, PaymentStatus.SUCCEEDED);
         return "Le paiement a été effectué avec succès !";
     }
-
+//Updates status in DB to CANCELED
     @GetMapping("/cancel")
     public String paymentCancel(@RequestParam String sessionId) throws MessagingException, UnsupportedEncodingException {
         iPaymentService.updatePaymentStatus(sessionId, PaymentStatus.CANCELED);
         return "Le paiement a été annulé.";
     }
-
+//Deletes a payment 16-6
     @DeleteMapping("/{paymentId}")
     public void deletePayment(@PathVariable Long paymentId) {
         iPaymentService.deletePayment(paymentId);
     }
-
+//gets status
     @GetMapping("/payment-status")
     public PaymentStatus checkPaymentStatus(@RequestParam String sessionId) throws StripeException, MessagingException, UnsupportedEncodingException {
         return iPaymentService.checkAndUpdatePaymentStatus(sessionId);
@@ -83,6 +95,8 @@ public class PaymentController {
     }
 
 
+
+//Generates and downloads a PDF invoice for the payment. PDF
     @GetMapping("/{paymentId}/invoice")
     public ResponseEntity<byte[]> generateInvoice(@PathVariable Long paymentId) throws IOException {
         Payment payment = iPaymentService.getPaymentById(paymentId);
