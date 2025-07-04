@@ -30,26 +30,26 @@ public class SecurityConfig {
     @Value("${app.jwtSecret}")
     private String jwtSecret;
 
-
- public UserServiceClient userServiceClient;
+    public UserServiceClient userServiceClient;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").authenticated()
-                        .anyRequest().permitAll()
-                )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt
-                                .jwtAuthenticationConverter(jwtGrantedAuthoritiesConverter())
-                        )
-                )
-                // Add this to ensure security context propagation
+                        .requestMatchers("/**").permitAll()
+                        .anyRequest().permitAll())
+                // Commented out JWT validation since requests are coming through Gateway
+                // The Gateway should handle authentication, not individual services
+                /*
+                 * .oauth2ResourceServer(oauth2 -> oauth2
+                 * .jwt(jwt -> jwt
+                 * .jwtAuthenticationConverter(jwtGrantedAuthoritiesConverter())
+                 * )
+                 * )
+                 */
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

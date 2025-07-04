@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @org.springframework.web.bind.annotation.RestController
+@RequestMapping("/books") // Add base path to match Gateway routing
 @CrossOrigin(origins = "*")
 public class RestController {
     private static final String UPLOAD_DIR = "uploads/";
@@ -79,31 +80,37 @@ public class RestController {
         }
     }
 
-    @GetMapping("/ShowAllLivre")
-    public ResponseEntity< List<Books>> showLivres( @RequestParam(required = false) Boolean sort,
-        @RequestParam(required = false, defaultValue = "true") boolean ascending) {
-
-            List<Books> livres;
-
-            if (sort != null && sort) {
-                livres = services.getAllBooksSortedByTitle(ascending);
-            } else {
-                livres = services.showLivres();
-            }
-
+    @GetMapping("/all") // This will be accessible as /books/all through Gateway
+    public ResponseEntity<List<Books>> getAllBooks() {
+        try {
+            List<Books> livres = services.showLivres();
             return ResponseEntity.ok(livres);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/ShowAllLivre")
+    public ResponseEntity<List<Books>> showLivres(@RequestParam(required = false) Boolean sort,
+            @RequestParam(required = false, defaultValue = "true") boolean ascending) {
+
+        List<Books> livres;
+
+        if (sort != null && sort) {
+            livres = services.getAllBooksSortedByTitle(ascending);
+        } else {
+            livres = services.showLivres();
         }
 
+        return ResponseEntity.ok(livres);
+    }
 
     @DeleteMapping("/deleteLivre/{id}")
     public String deleteBook(@PathVariable int id) {
         return services.deleteBook(id);
     }
 
-
-    @PutMapping(value = "/UpdateLivre/{id}",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/UpdateLivre/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> updateBook(
             @PathVariable int id,
             @Valid @RequestPart("book") String bookJson,
@@ -159,10 +166,8 @@ public class RestController {
         }
     }
 
-
-
     @GetMapping("books/{id}")
-    Books getById(@PathVariable Long id){
+    Books getById(@PathVariable Long id) {
         return services.getById(id);
     }
 
@@ -178,8 +183,4 @@ public class RestController {
         return ResponseEntity.badRequest().body(errors);
     }
 
-
-
-
-
-    }
+}

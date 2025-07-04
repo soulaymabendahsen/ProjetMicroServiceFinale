@@ -36,6 +36,12 @@ import { ReclamationAddComponent } from './components/reclamation-add/reclamatio
 import { ReclamationUpdateComponent } from './components/reclamation-update/reclamation-update.component';
 import { KeycloakHttpInterceptor } from './services/keycloak.interceptor';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { APP_INITIALIZER } from '@angular/core';
+import { KeycloakService } from './services/keycloak.service';
+
+export function initializeKeycloak(keycloak: KeycloakService) {
+  return () => keycloak.init();
+}
 
 @NgModule({
   declarations: [
@@ -62,7 +68,6 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
     ReclamationListComponent,
     ReclamationAddComponent,
     ReclamationUpdateComponent,
-    
   ],
   imports: [
     BrowserModule,
@@ -77,18 +82,24 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
     MatSnackBarModule,
     MatDialogModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
   ],
- providers: [
-  DatePipe,
-  CurrencyPipe,
-  {
-    provide: HTTP_INTERCEPTORS,
-    useClass: KeycloakHttpInterceptor,
-    multi: true
-  }
-],
+  providers: [
+    DatePipe,
+    CurrencyPipe,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeKeycloak,
+      multi: true,
+      deps: [KeycloakService],
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: KeycloakHttpInterceptor,
+      multi: true,
+    },
+  ],
 
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

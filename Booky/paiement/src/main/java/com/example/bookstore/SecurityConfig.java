@@ -38,9 +38,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/carts/all").hasRole("ADMIN")
-                        .requestMatchers("/carts/**").authenticated()
-                        .requestMatchers("/payment").hasRole("ADMIN")
+                        .requestMatchers("/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

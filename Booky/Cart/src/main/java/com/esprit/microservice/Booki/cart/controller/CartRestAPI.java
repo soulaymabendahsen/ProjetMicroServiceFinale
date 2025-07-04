@@ -117,7 +117,6 @@ public class CartRestAPI {
 
 
     @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Cart>> getAllCartItems() {
         List<Cart> cartItems = cartService.getCartContents();
         return ResponseEntity.ok(cartItems);

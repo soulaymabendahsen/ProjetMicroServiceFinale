@@ -23,9 +23,11 @@ public class BookstoreApplication {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:4200") // Autorise Angular
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
-                        .allowedHeaders("*"); // Autorise tous les en-têtes
+                        .allowedOriginPatterns("*") // Use allowedOriginPatterns instead of allowedOrigins
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Added OPTIONS for preflight
+                        .allowedHeaders("*") // Autorise tous les en-têtes
+                        .allowCredentials(false) // Explicitly set credentials to false for clarity
+                        .maxAge(3600); // Cache preflight requests
             }
         };
     }

@@ -1,4 +1,4 @@
-package com.esprit.microservice.Booki.cart.config;
+package main.java.com.microservice.gestionlivres.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

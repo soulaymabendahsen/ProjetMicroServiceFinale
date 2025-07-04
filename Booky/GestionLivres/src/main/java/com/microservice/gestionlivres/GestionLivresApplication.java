@@ -3,30 +3,30 @@ package com.microservice.gestionlivres;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-@EnableDiscoveryClient
+
 @SpringBootApplication
+@EnableDiscoveryClient
+@EnableFeignClients(basePackages = "com.microservice.gestionlivres.Services")
 public class GestionLivresApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(GestionLivresApplication.class, args);
     }
+
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**")  // Spécifiez le path de votre API
-                        .allowedOriginPatterns(
-                                "http://localhost:[*]",  // Autorise tous les ports
-                                "http://127.0.0.1:[*]",
-                                "http://192.168.[0-9]*.[0-9]*:[*]"  // IP locales
-                        )
+                registry.addMapping("/**")
+                        .allowedOriginPatterns("*") // Now we can use * again
                         .allowedMethods("*")
                         .allowedHeaders("*")
-                        .allowCredentials(true)
+                        .allowCredentials(false) // Set to false to avoid CORS conflicts
                         .maxAge(3600);
             }
         };

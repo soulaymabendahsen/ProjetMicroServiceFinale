@@ -5,12 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@SpringBootApplication(scanBasePackages = {
-        "com.esprit.microservice.Booki",  // Inclut tous tes composants
-        "com.esprit.microservice.Booki.cart.config"
-})
+@SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = "com.esprit.microservice.Booki") // Feign dans le même scope
+@EnableFeignClients(basePackages = "com.esprit.microservice.Booki")
 public class BookiApplication {
     public static void main(String[] args) {
         SpringApplication.run(BookiApplication.class, args);

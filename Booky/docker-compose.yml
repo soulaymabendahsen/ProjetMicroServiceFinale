@@ -9,6 +9,8 @@ services:
       - "4200:80"
     networks:
       - booki-network
+    depends_on:
+      - gateway
 
   eureka-server:
     build: ./Eureka
@@ -22,6 +24,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 60s
 
   config-server:
     build:
@@ -53,6 +56,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 45s
 
   gateway:
     build:
@@ -85,7 +89,7 @@ services:
     container_name: book-service
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
-      - SPRING_APPLICATION_NAME=GestionLivres
+      - SPRING_APPLICATION_NAME=book-service
       - SERVER_PORT=8095
       - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
       - SPRING_PROFILES_ACTIVE=default
@@ -112,7 +116,7 @@ services:
       - SPRING_APPLICATION_NAME=cart-service
       - SERVER_PORT=8081
     ports:
-      - "8081:8081"
+      - "8082:8081"  # Fixed port conflict with user-service
     networks:
       - booki-network
     depends_on:
@@ -123,8 +127,8 @@ services:
 
   complaint-service:
     build:
-        context: ./complaint-service
-        dockerfile: Dockerfile
+      context: ./complaint-service
+      dockerfile: Dockerfile
     container_name: complaint-service
     environment:
       - PORT=3000
@@ -178,6 +182,29 @@ services:
     networks:
       - booki-network
 
+  user-service:
+    build:
+      context: ./User
+      dockerfile: Dockerfile
+    container_name: user-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/user_db?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    networks:
+      - booki-network
+
   keycloak:
     build:
       context: ./keycloak-23.0.0
@@ -205,6 +232,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   mysql:
     image: mysql:8.0
@@ -221,10 +249,11 @@ services:
       - booki-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root"]
-      interval: 5s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 10
-  
+      start_period: 30s
+
 networks:
   booki-network:
     driver: bridge
@@ -232,5 +261,6 @@ networks:
 volumes:
   mongo-data:
   mysql-data:
+  mysql-user-data:  # Added missing volume
   gestionlivres-data:
   gestionlivres-uploads:

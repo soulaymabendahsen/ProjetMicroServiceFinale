@@ -6,16 +6,16 @@ import { environment } from '../../environments/environment';
 import { map, catchError } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BookService {
-  private apiUrl = environment.apiUrl; // Utilisez toujours environment.apiUrl
+  private apiUrl = environment.bookUrl; // Utilisez l'URL de l'API des livres depuis l'environnement
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   exportBooksToPdf() {
     return this.http.get(`${this.apiUrl}/LivrePdf`, {
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 
@@ -25,9 +25,9 @@ export class BookService {
     formData.append('file', file);
 
     return this.http.post(`${this.apiUrl}/upload`, formData, {
-      responseType: 'text'
+      responseType: 'text',
     });
-}
+  }
 
   getUploadUrl(): string {
     return `${this.apiUrl}/upload`;
@@ -41,9 +41,10 @@ export class BookService {
 
     const apiBook = {
       ...book,
-      publicationDate: book.publicationDate || yesterday.toISOString().split('T')[0],
+      publicationDate:
+        book.publicationDate || yesterday.toISOString().split('T')[0],
       // Ensure originalPrice is set if not already
-      originalPrice: book.originalPrice || book.price
+      originalPrice: book.originalPrice || book.price,
     };
 
     console.log('Sending book data:', apiBook);
@@ -75,10 +76,6 @@ export class BookService {
       return imagePath;
     }
 
-
-
-
-
     // Nettoyer le chemin de l'image
     let cleanPath = imagePath;
     // Supprimer les préfixes indésirables
@@ -93,13 +90,13 @@ export class BookService {
 
   getBooks(): Observable<Book[]> {
     return this.http.get<Book[]>(`${this.apiUrl}/ShowAllLivre`).pipe(
-      map(books => {
-        return books.map(book => {
+      map((books) => {
+        return books.map((book) => {
           console.log('Processing book:', book.title);
           console.log('Original image path:', book.imageUrl);
           const processedBook = {
             ...book,
-            imageUrl: book.imageUrl ? this.getFullImageUrl(book.imageUrl) : ''
+            imageUrl: book.imageUrl ? this.getFullImageUrl(book.imageUrl) : '',
           };
           console.log('Processed image URL:', processedBook.imageUrl);
           return processedBook;
@@ -120,14 +117,17 @@ export class BookService {
   }
 
   // Nouvelle méthode pour récupérer les livres avec pagination
-  getBooksWithPagination(page: number = 1, limit: number = 9): Observable<Book[]> {
+  getBooksWithPagination(
+    page: number = 1,
+    limit: number = 9
+  ): Observable<Book[]> {
     return this.http.get<Book[]>(`${this.apiUrl}/ShowAllLivre`).pipe(
-      map(books => {
+      map((books) => {
         const startIndex = (page - 1) * limit;
         const endIndex = startIndex + limit;
-        return books.slice(startIndex, endIndex).map(book => ({
+        return books.slice(startIndex, endIndex).map((book) => ({
           ...book,
-          imageUrl: book.imageUrl ? this.getFullImageUrl(book.imageUrl) : ''
+          imageUrl: book.imageUrl ? this.getFullImageUrl(book.imageUrl) : '',
         }));
       })
     );
@@ -138,6 +138,9 @@ export class BookService {
   }
 
   applyPromotion(bookId: number, promotionPercent: number): Observable<Book> {
-    return this.http.post<Book>(`${this.apiUrl}/applyPromotion/${bookId}?promotionPercent=${promotionPercent}`, {});
+    return this.http.post<Book>(
+      `${this.apiUrl}/applyPromotion/${bookId}?promotionPercent=${promotionPercent}`,
+      {}
+    );
   }
 }
