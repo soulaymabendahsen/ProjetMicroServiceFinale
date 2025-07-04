@@ -37,57 +37,59 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()
                         .anyRequest().permitAll())
-                // Commented out JWT validation since requests are coming through Gateway
-                // The Gateway should handle authentication, not individual services
-                /*
-                 * .oauth2ResourceServer(oauth2 -> oauth2
-                 * .jwt(jwt -> jwt
-                 * .jwtAuthenticationConverter(jwtGrantedAuthoritiesConverter())
-                 * )
-                 * )
-                 */
+                // Completely disable OAuth2 resource server to avoid JWT validation
+                // .oauth2ResourceServer(oauth2 -> oauth2
+                // .jwt(jwt -> jwt
+                // .jwtAuthenticationConverter(jwtGrantedAuthoritiesConverter())
+                // )
+                // )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
-        SecretKey secretKey = new SecretKeySpec(keyBytes, "HmacSHA256");
-        return NimbusJwtDecoder.withSecretKey(secretKey).build();
-    }
+    // Commented out JWT decoder since we're not validating JWT tokens
+    /*
+     * @Bean
+     * public JwtDecoder jwtDecoder() {
+     * byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+     * SecretKey secretKey = new SecretKeySpec(keyBytes, "HmacSHA256");
+     * return NimbusJwtDecoder.withSecretKey(secretKey).build();
+     * }
+     */
 
-    @Bean
-    public JwtAuthenticationConverter jwtGrantedAuthoritiesConverter() {
-        JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
-
-        jwtConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            String username = jwt.getSubject();
-            System.out.println("Attempting to fetch roles for: " + username);
-
-            try {
-                UserDTO user = userServiceClient.getUserDetailsByUsername(username);
-
-                if (user == null || user.getRoles() == null) {
-                    System.err.println("User or roles not found for: " + username);
-                    return Collections.emptyList();
-                }
-
-                System.out.println("Successfully fetched roles: " + user.getRoles());
-                return user.getRoles().stream()
-                        .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                        .collect(Collectors.toList());
-
-            } catch (Exception e) {
-                System.err.println("Critical error fetching roles: " + e.getMessage());
-                return Collections.emptyList();
-            }
-        });
-
-        return jwtConverter;
-    }
+    // Commented out JWT authentication converter since we're not using JWT
+    /*
+     * @Bean
+     * public JwtAuthenticationConverter jwtGrantedAuthoritiesConverter() {
+     * JwtAuthenticationConverter jwtConverter = new JwtAuthenticationConverter();
+     * 
+     * jwtConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
+     * String username = jwt.getSubject();
+     * System.out.println("Attempting to fetch roles for: " + username);
+     * 
+     * try {
+     * UserDTO user = userServiceClient.getUserDetailsByUsername(username);
+     * 
+     * if (user == null || user.getRoles() == null) {
+     * System.err.println("User or roles not found for: " + username);
+     * return Collections.emptyList();
+     * }
+     * 
+     * System.out.println("Successfully fetched roles: " + user.getRoles());
+     * return user.getRoles().stream()
+     * .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+     * .collect(Collectors.toList());
+     * 
+     * } catch (Exception e) {
+     * System.err.println("Critical error fetching roles: " + e.getMessage());
+     * return Collections.emptyList();
+     * }
+     * });
+     * 
+     * return jwtConverter;
+     * }
+     */
 }

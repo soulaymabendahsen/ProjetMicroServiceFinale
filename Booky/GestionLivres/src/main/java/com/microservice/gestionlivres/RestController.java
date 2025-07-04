@@ -27,7 +27,6 @@ import java.util.Optional;
 
 @org.springframework.web.bind.annotation.RestController
 @RequestMapping("/books") // Add base path to match Gateway routing
-@CrossOrigin(origins = "*")
 public class RestController {
     private static final String UPLOAD_DIR = "uploads/";
 

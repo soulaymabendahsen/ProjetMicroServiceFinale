@@ -1,4 +1,4 @@
-package main.java.com.microservice.gestionlivres.config;
+package com.microservice.gestionlivres.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
