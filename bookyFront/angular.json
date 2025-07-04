@@ -9,7 +9,7 @@
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
-      "architect": {
+      "targets": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
@@ -21,15 +21,13 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-               "src/assets"
+              "src/assets"
             ],
             "styles": [
-              "src/assets/css/style.css" 
-
+              "src/assets/css/style.css"
             ],
             "scripts": [
               "src/assets/js/script.js"
-
             ]
           },
           "configurations": {
@@ -61,6 +59,9 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "Book-MicroServieFront:build"
+          },
           "configurations": {
             "production": {
               "browserTarget": "Book-MicroServieFront:build:production"
@@ -95,11 +96,10 @@
               }
             ],
             "styles": [
-              "src/assets/css/style.css" 
+              "src/assets/css/style.css"
             ],
             "scripts": [
               "src/assets/js/script.js"
-
             ]
           }
         }

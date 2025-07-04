@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   gestionlivres:
-    image: sarrahsahli/gestionlivres:latest
+    image: sirinekaabi/gestionlivres:latest
     container_name: gestionlivres-compose
     ports:
       - "8095:8095"
