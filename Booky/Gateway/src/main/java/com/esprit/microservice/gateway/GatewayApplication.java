@@ -24,16 +24,23 @@ public class GatewayApplication {
                                 // Health check route for testing
                                 .route("health-check", r -> r.path("/health")
                                                 .uri("forward:/actuator/health"))
+
+                                // Auth test route for JWT validation testing
+                                .route("auth-test", r -> r.path("/auth-test")
+                                                .uri("forward:/auth-test"))
+
+                                // Microservice routes
                                 .route("payment-service", r -> r.path("/payment/**")
                                                 .uri("lb://paiement-service")) // Fixed: matches docker service name
-                                .route("user-service", r -> r.path("/api/users/**")
-                                                .uri("lb://user-service")) // This seems correct
+                                .route("user-service", r -> r.path("/api/users/**", "/api/auth/**")
+                                                .uri("lb://user-service")) // Routes both users and auth to user-service
                                 .route("complaint-service", r -> r.path("/api/complaints/**")
                                                 .uri("lb://complaint-service")) // Fixed: matches docker service name
                                 .route("book-service", r -> r.path("/books/**")
-                                                .uri("lb://book-service")) // Fixed: matches actual Eureka registration name
+                                                .uri("lb://book-service")) // Fixed: matches actual Eureka registration
+                                                                           // name
                                 .route("cart-service", r -> r.path("/carts/**")
-                                        .uri("lb://cart-service")) // Fixed: matches docker service name
+                                                .uri("lb://cart-service")) // Fixed: matches docker service name
 
                                 .build();
         }

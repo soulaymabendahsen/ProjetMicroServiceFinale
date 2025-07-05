@@ -38,9 +38,44 @@ import { KeycloakHttpInterceptor } from './services/keycloak.interceptor';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { APP_INITIALIZER } from '@angular/core';
 import { KeycloakService } from './services/keycloak.service';
+import { DualAuthService } from './services/dual-auth.service';
 
 export function initializeKeycloak(keycloak: KeycloakService) {
   return () => keycloak.init();
+}
+
+export function initializeDualAuth(
+  dualAuthService: DualAuthService,
+  keycloakService: KeycloakService
+) {
+  return () => {
+    return keycloakService.init().then((authenticated) => {
+      if (authenticated) {
+        console.log(
+          '🔐 Keycloak authenticated, starting simple dual auth sync...'
+        );
+        // Start personal auth sync after Keycloak success
+        dualAuthService.syncWithPersonalAuth().subscribe({
+          next: (result) => {
+            if (result?.success) {
+              console.log('✅ Dual auth sync completed successfully');
+            } else {
+              console.log(
+                '⚠️ Dual auth sync completed with issues, but continuing...'
+              );
+            }
+          },
+          error: (error) => {
+            console.warn(
+              '⚠️ Dual auth sync failed, continuing with Keycloak only:',
+              error
+            );
+          },
+        });
+      }
+      return authenticated;
+    });
+  };
 }
 
 @NgModule({
@@ -89,9 +124,9 @@ export function initializeKeycloak(keycloak: KeycloakService) {
     CurrencyPipe,
     {
       provide: APP_INITIALIZER,
-      useFactory: initializeKeycloak,
+      useFactory: initializeDualAuth,
       multi: true,
-      deps: [KeycloakService],
+      deps: [DualAuthService, KeycloakService],
     },
     {
       provide: HTTP_INTERCEPTORS,

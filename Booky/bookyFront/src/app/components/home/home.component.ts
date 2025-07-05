@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { KeycloakService } from '../../services/keycloak.service';
+import { DualAuthService } from '../../services/dual-auth.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
@@ -11,11 +12,13 @@ import { environment } from '../../../environments/environment';
 export class HomeComponent implements OnInit {
   constructor(
     private keycloakService: KeycloakService,
+    private dualAuthService: DualAuthService,
     private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     this.checkKeycloakStatus();
+    this.checkDualAuthStatus();
   }
 
   checkKeycloakStatus(): void {
@@ -30,9 +33,32 @@ export class HomeComponent implements OnInit {
     console.log('Environment Keycloak URL:', environment.keycloakUrl);
   }
 
+  checkDualAuthStatus(): void {
+    console.log('=== Dual Auth Status Check ===');
+    const userInfo = this.dualAuthService.getCurrentUserInfo();
+    console.log('Dual Auth Status:', userInfo);
+    console.log(
+      'Both Systems Ready:',
+      this.dualAuthService.isBothSystemsReady()
+    );
+  }
+
   testLogin(): void {
     console.log('Attempting to login...');
     this.keycloakService.login();
+  }
+
+  testDualAuthSync(): void {
+    console.log('Testing manual dual auth sync...');
+    this.dualAuthService.syncWithPersonalAuth().subscribe({
+      next: (result) => {
+        console.log('✅ Dual auth sync result:', result);
+        this.checkDualAuthStatus();
+      },
+      error: (error) => {
+        console.error('❌ Dual auth sync error:', error);
+      },
+    });
   }
 
   testApiCall(): void {
@@ -41,5 +67,22 @@ export class HomeComponent implements OnInit {
       next: (data) => console.log('API Success:', data),
       error: (error) => console.error('API Error:', error),
     });
+  }
+
+  testPersonalAuthAPI(): void {
+    console.log('Testing personal auth API with stored token...');
+    const personalToken = this.dualAuthService.getPersonalAuthToken();
+
+    if (personalToken) {
+      const headers = { Authorization: `Bearer ${personalToken}` };
+      this.http
+        .get(`${environment.gatewayUrl}/api/users/profile`, { headers })
+        .subscribe({
+          next: (data) => console.log('✅ Personal Auth API Success:', data),
+          error: (error) => console.error('❌ Personal Auth API Error:', error),
+        });
+    } else {
+      console.log('⚠️ No personal auth token available');
+    }
   }
 }

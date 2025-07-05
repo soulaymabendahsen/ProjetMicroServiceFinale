@@ -51,7 +51,7 @@ export class BookService {
     return this.http.post<Book>(`${this.apiUrl}/AjoutLivre`, apiBook);
   }
   getBookById(id: number): Observable<any> {
-    return this.http.get(`${environment.apiUrl}/getbookbyid/${id}`);
+    return this.http.get(`${this.apiUrl}/getbookbyid/${id}`);
   }
 
   updateBook(id: number, formData: FormData): Observable<any> {

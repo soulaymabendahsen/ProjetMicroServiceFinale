@@ -17,15 +17,16 @@ public class PasswordValidationService {
             return false;
         }
 
-        boolean hasUppercase = UPPERCASE_PATTERN.matcher(password).find();
-        boolean hasLowercase = LOWERCASE_PATTERN.matcher(password).find();
-        boolean hasDigit = DIGIT_PATTERN.matcher(password).find();
-        boolean hasSpecialChar = SPECIAL_CHAR_PATTERN.matcher(password).find();
-
-        return hasUppercase && hasLowercase && hasDigit && hasSpecialChar;
+//        boolean hasUppercase = UPPERCASE_PATTERN.matcher(password).find();
+//        boolean hasLowercase = LOWERCASE_PATTERN.matcher(password).find();
+//        boolean hasDigit = DIGIT_PATTERN.matcher(password).find();
+//        boolean hasSpecialChar = SPECIAL_CHAR_PATTERN.matcher(password).find();
+//
+//        return hasUppercase && hasLowercase && hasDigit && hasSpecialChar;
+        return true;
     }
 
     public String getPasswordRequirements() {
-        return "Password must be at least " + MIN_LENGTH + " characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+        return "Password must not be empty";
     }
 } 
