@@ -22,7 +22,6 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-
 @RestController
 @RequestMapping("/carts")
 public class CartRestAPI {
@@ -36,20 +35,11 @@ public class CartRestAPI {
     @Autowired
     private UserServiceClient userServiceClient;
 
-
     @PostMapping("/add")
     public ResponseEntity<?> addToCart(
             @RequestParam Long bookId,
             @RequestParam Integer quantity) {
         try {
-            // Debug authentication
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            System.out.println("Authentication: " + auth);
-            if (auth != null && auth.getPrincipal() instanceof Jwt) {
-                Jwt jwt = (Jwt) auth.getPrincipal();
-                System.out.println("JWT Claims: " + jwt.getClaims());
-            }
-
             Cart cartItem = cartService.addToCart(bookId, quantity);
             return ResponseEntity.ok(cartItem);
         } catch (RuntimeException ex) {
@@ -78,7 +68,6 @@ public class CartRestAPI {
         }
     }
 
-
     @PutMapping("/update/{cartId}")
     public ResponseEntity<?> updateCartItem(@PathVariable Long cartId, @RequestParam Integer newQuantity) {
         try {
@@ -93,8 +82,6 @@ public class CartRestAPI {
                     .body(errorResponse);
         }
     }
-
-
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Cart>> getCartsByUserId(@PathVariable Long userId) {
@@ -115,37 +102,31 @@ public class CartRestAPI {
         }
     }
 
-
     @GetMapping("/all")
     public ResponseEntity<List<Cart>> getAllCartItems() {
         List<Cart> cartItems = cartService.getCartContents();
         return ResponseEntity.ok(cartItems);
     }
 
-
     @GetMapping("/total")
-    public  Double calculateCartTotal() {
+    public Double calculateCartTotal() {
         return cartService.calculateCartTotal();
     }
-
 
     @GetMapping("/search")
     public ResponseEntity<?> searchByTitle(@RequestParam String title) {
         return cartService.searchByTitle(title);
     }
 
-
     @GetMapping("/clear")
     public void clearCart() {
-       cartService.clearCart();
+        cartService.clearCart();
     }
-
 
     @GetMapping("/count")
     public int countCart() {
         return cartService.cartCount();
     }
-
 
     @GetMapping("/sorted")
     public ResponseEntity<?> getCartsSortedByPrice(
@@ -154,17 +135,15 @@ public class CartRestAPI {
         return ResponseEntity.ok(cartService.getAllCartsSortedByPrice(ascending));
     }
 
-
-   // @GetMapping("/today")
-    //public List<Cart> getTodayCarts() {
-  //      return cartService.getTodayCarts();
-    //}
+    // @GetMapping("/today")
+    // public List<Cart> getTodayCarts() {
+    // return cartService.getTodayCarts();
+    // }
 
     @GetMapping("/last-week")
     public List<Cart> getCartsFromLastWeek() {
         return cartService.getCartsFromLastWeek();
     }
-
 
     @GetMapping(value = "/{id}/qrcode", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> getCartQRCode(@PathVariable Long id) {
@@ -185,7 +164,6 @@ public class CartRestAPI {
                 .body(cartService.generateBookPopularityChart());
     }
 
-
     @GetMapping("/paginated")
     public ResponseEntity<Page<Cart>> getPaginatedCarts(
             @RequestParam(defaultValue = "0") int page,
@@ -193,7 +171,5 @@ public class CartRestAPI {
         Page<Cart> carts = cartRepository.findAll(PageRequest.of(page, size));
         return ResponseEntity.ok(carts);
     }
-
-
 
 }
