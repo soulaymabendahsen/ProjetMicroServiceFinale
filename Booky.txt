@@ -1,0 +1,191 @@
+﻿BookStore en ligne : Booky
+________________
+
+
+1. Présentation Générale du Projet
+Le projet "Booky" est une librairie en ligne construite selon une architecture à base de microservices. Il repose sur diverses technologies telles que Spring Boot, Node.js, Keycloak, MongoDB, MySQL, etc. L'objectif principal est de gérer l'ensemble du cycle de vie des livres, paniers, utilisateurs, paiements et réclamations.
+Chaque microservice est indépendant, enregistré dans Eureka Server, communique via Feign Clients ou via API Gateway.
+________________
+
+
+2. Architecture Globale
+* Microservices Spring Boot (4 services, chacun avec sa propre base de données)
+* Microservice Node.js (Service de réclamations)
+* Keycloak : Authentification et gestion des rôles
+* API Gateway : Entrée unique pour les appels REST
+* Eureka Server : Découverte de services
+* Config Server : Centralisation des configurations
+* Frontend : Interface simple en Angular
+* Docker : Conteneurisation de l'ensemble de l'application
+________________
+
+
+3. Répartition des Tâches
+Membre
+	Microservice
+	Base de données
+	Tâches principales
+	Syrine Kaabi
+	Cart
+	MySQL
+	Gestion du panier, intégration avec User & Book, QR code
+	Chaima Riahi
+	GestionLivres (Book)
+	H2
+	CRUD livres, intégration avec Cart, Export PDF,Crud Promotion
+	Soulayma Ben Dahsen
+	Paiement
+	MySQL
+	Gestion des paiements et génération de factures PDF et Envoi des emails
+	Yassine Sboui
+	User
+	MySQL
+	Authentication Keycloak (email), gestion des utilisateurs
+	Tous
+	Complaint (Node.js)
+	MongoDB
+	Réclamations utilisateurs, intégration avec Eureka
+	________________
+
+
+4. Détails Techniques des Microservices
+4.1 Service Cart
+* Port : 8082
+* Nom : Syrine Kaabi
+* Base de données : MySQL 
+* Fonctionnalités :
+   * Ajouter / modifier / supprimer un article du panier
+   * Rechercher par titre
+   * Vider le panier
+   * Statistiques de popularité (XChart)
+   * QR Code généré pour chaque panier
+* Endpoints REST : /cart/add, /cart/remove/{id}, /cart/chart/popularity, etc.
+* Dépendances : Eureka, Config Server, Gateway
+4.2 Service Complaint (Node.js)
+* Port : 3000
+* Base de données : MongoDB
+* Fonctionnalités :
+   * Créer, consulter, mettre à jour, supprimer une réclamation
+   * Répondre en tant qu'admin
+   * Marquer comme résolu
+   * Filtrer par email utilisateur
+* Endpoints REST : /api/complaints/, /api/complaints/:id/status, etc.
+* Dépendances : Eureka, Gateway
+4.3 Service User
+* Port : 8081
+* Nom : Yassine Sboui
+* Base de données : MySQL
+* Fonctionnalités :
+   * Inscription / gestion des utilisateurs
+   * Rôles et permissions via Keycloak
+   * JWT pour la sécurité
+* Dépendances : Eureka, Config Server, Gateway
+4.4 Service GestionLivres (Book)
+* Port : 8095
+* Nom : Chaime Riahi
+* Base de données : H2
+* Fonctionnalités :
+   * CRUD livres, tri et recherche
+   * Promotions sur les livres
+   * Export PDF
+   * Upload d'images
+* Endpoints REST : /AjoutLivre, /deleteLivre/{id}, /LivrePdf, etc.
+* Dépendances : Eureka, Config Server
+4.5 Service Paiement
+* Port : 8085
+* Nom : Soulayma Ben dahsen
+* Base de données : MySQL
+* Fonctionnalités :
+   * Intégration Stripe : création de sessions, réessai de paiements
+   * Mise à jour de statuts, suppression
+   * Génération de factures PDF
+   * Recherche, tri, listing des paiements
+* Dépendances : Stripe, PDFBox, Feign, Gmail SMTP, Eureka, Gateway
+4.6 API Gateway
+* Port : 8083
+* Type : Spring Cloud Gateway
+* Fonctionnalités :
+   * Point d'entrée unique
+   * Routage dynamique via Eureka
+   * Sécurisé avec Keycloak
+4.7 Eureka Server
+* Port : 8761
+* Fonctionnalités :
+   * Découverte des services
+   * Enregistrement automatique au démarrage
+
+
+4.8 Config Server
+* Port : 8888
+* Fonctionnalités :
+   * Centralisation des fichiers application.yml
+   * Chargement depuis un répertoire local config/
+4.9 Keycloak
+* Port : 8084
+* Base de données : PostgreSQL
+* Fonctionnalités :
+   * Authentification centralisée
+   * Gestion des utilisateurs et des rôles
+   * Génération de tokens JWT
+4. Git commits
+C:\Users\soussou\Desktop\ESPRIT\microservice\PROJET FINALE MICRO SERVICE\Booki-Microservice>git log --all
+commit f5b6f53eca3e697d4e4b65edd22cf3954784cad8 (origin/Keycloak-23.0.0)
+Author: Yassine SBOUI <sboui@neoledge.com>
+Date:   Sat Jul 5 00:41:08 2025 +0100
+
+
+    refactor: Update service routing and remove CORS configurations handled by Gateway
+
+
+commit f0abe2d736ec667f25934369d29f0bcbfd90e95a (origin/cart-service)
+Author: nousseibakaabi <101217027+nousseibakaabi@users.noreply.github.com>
+Date:   Fri Jul 4 23:33:50 2025 +0100
+
+
+    Cart Service  COmmiitss - syrine
+
+
+commit 9dd6ff496fb6430c732aedc1984c2a770d720c4d (HEAD -> payment-service, origin/payment-service)
+Author: soulaymabendahsen <souleima.bendahsen@gmail.com>
+Date:   Sat Jul 5 00:29:56 2025 +0200
+
+
+    changes payement service by soulayma
+
+
+commit 69ad2659193c6662c819e9ed05cec68d04a439b5 (origin/gestionLivres)
+Author: Yassine SBOUI <sboui@neoledge.com>
+Date:   Fri Jul 4 22:16:53 2025 +0100
+
+
+    feat: Enhance Navbar with loading state and add DiagnosticService for connectivity tests
+
+
+    - Added loading state to NavbarComponent during cart item fetch.
+    - Introduced DiagnosticService for comprehensive connectivity testing of various endpoints.
+    - Updated BookService to use bookUrl from environment and improved response handling.
+    - Removed obsolete test files for BookService and CartService.
+    - Enhanced KeycloakService with additional methods for user roles and token management.
+    - Updated KeycloakHttpInterceptor to log request details and handle token authentication more effectively.
+    - Modified environment files to include bookUrl for API calls.
+    - Refactored main.ts to streamline application bootstrap process.
+    - Updated docker-compose.yml to manage service dependencies and health checks.
+    - Improved CORS configuration in PaymentService for better security and compatibility.
+    - Adjusted SecurityConfig to permit all requests for simplified access control.
+    - Updated UserServiceClient to ensure proper service naming and configuration.
+
+
+commit 113dca205c881a7d7b8838da8199d299483d2ac6
+Author: Yassine SBOUI <sboui@neoledge.com>
+Date:   Tue Jul 1 09:28:23 2025 +0100
+
+
+    Major-Changes
+
+
+commit 5c4d9544edf6fae90e05db4f570254d945bf7a6b
+Author: Yassine SBOUI <sboui@neoledge.com>
+Date:   Tue Jul 1 09:23:26 2025 +0100
+
+
+    Major-Changes
